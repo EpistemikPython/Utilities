@@ -1,0 +1,19 @@
+.*
+!.gitignore
+**/in/
+**/out/
+**/logs/
+**/venv/
+**/Downloads
+**/test*/
+**/bin/
+*.py[cdo]
+*.out
+*.o
+*.so
+*.obj
+*.bin
+*.exe
+*.x
+# find <dir/>* -type l >> .gitignore
+
