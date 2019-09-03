@@ -11,7 +11,7 @@ __author__ = 'Mark Sattolo'
 __author_email__ = 'epistemik@gmail.com'
 __python_version__ = 3.6
 __created__ = '2019-04-07'
-__updated__ = '2019-08-30'
+__updated__ = '2019-08-31'
 
 import inspect
 import json
@@ -149,12 +149,12 @@ class CommonUtilities:
 
         if not target_year.isnumeric():
             SattoLog.print_warning("Input MUST be the String representation of a Year, e.g. '2013'!")
-            exit(214)
+            exit(152)
         int_year = int(float(target_year))
         if int_year > today.year or int_year < base_year:
             SattoLog.print_warning("Input MUST be the String representation of a Year between {} and {}!"
                                    .format(today.year, base_year))
-            exit(219)
+            exit(157)
 
         return int_year
 
@@ -168,11 +168,11 @@ class CommonUtilities:
 
         if not p_qtr.isnumeric():
             SattoLog.print_warning("Input MUST be a String of 0..4!")
-            exit(233)
+            exit(171)
         int_qtr = int(float(p_qtr))
         if int_qtr > 4 or int_qtr < 0:
             SattoLog.print_warning("Input MUST be a String of 0..4!")
-            exit(237)
+            exit(175)
 
         return int_qtr
 
@@ -225,19 +225,20 @@ class CommonUtilities:
             start_year, start_month = CommonUtilities.next_quarter_start(start_year, start_month)
 
     @staticmethod
-    def save_to_json(fname:str, ts:str, json_data, indt:int=4) -> str:
+    def save_to_json(fname:str, ts:str, json_data, indt:int=4, p_color:str=BLACK) -> str:
         """
         print json data to a file -- add a time string to get a unique file name each run
         :param     fname: file path and name
         :param        ts: timestamp to use
         :param json_data: json compatible struct
         :param      indt: indentation amount
+        :param   p_color: for printing
         :return: file name
         """
         SattoLog.print_text("CommonUtilities.save_to_json()", CommonUtilities.my_color)
 
         out_file = fname + '_' + ts + ".json"
-        SattoLog.print_text("json file is '{}'\n".format(out_file), MAGENTA)
+        SattoLog.print_text("json file is '{}'\n".format(out_file), p_color)
         fp = open(out_file, 'w')
         json.dump(json_data, fp, indent=indt)
         fp.close()
