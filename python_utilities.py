@@ -11,7 +11,7 @@ __author__ = 'Mark Sattolo'
 __author_email__ = 'epistemik@gmail.com'
 __python_version__ = 3.6
 __created__ = '2019-04-07'
-__updated__ = '2019-08-31'
+__updated__ = '2019-09-06'
 
 import inspect
 import json
@@ -120,131 +120,129 @@ class SattoLog:
 # END class SattoLog
 
 
-class CommonUtilities:
-    def __init__(self):
-        SattoLog.print_text("CommonUtilities", GREEN)
+my_color = BROWN
 
-    my_color = BROWN
 
-    @staticmethod
-    def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int) -> int :
-        """
-        calculate which row to update, factoring in the header row placed every so-many years
-        :param    target_year: year to calculate for
-        :param      base_year: starting year
-        :param base_year_span: number of rows between equivalent positions in adjacent years, not including header rows
-        :param       hdr_span: number of rows between header rows
-        """
-        SattoLog.print_text("CommonUtilities.year_span()", CommonUtilities.my_color)
+def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, p_debug:bool=False) -> int :
+    """
+    calculate which row to update, factoring in the header row placed every so-many years
+    :param    target_year: year to calculate for
+    :param      base_year: starting year
+    :param base_year_span: number of rows between equivalent positions in adjacent years, not including header rows
+    :param       hdr_span: number of rows between header rows
+    :param        p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.year_span()", my_color)
 
-        year_diff = int(target_year - base_year)
-        hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
-        return int(year_diff * base_year_span) + hdr_adjustment
+    year_diff = int(target_year - base_year)
+    hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
+    return int(year_diff * base_year_span) + hdr_adjustment
 
-    @staticmethod
-    def get_int_year(target_year:str, base_year:int) -> int :
-        """
-        convert the string representation of a year to an int
-        :param target_year: to convert
-        :param   base_year: earliest possible year
-        """
-        SattoLog.print_text("CommonUtilities.get_int_year()", CommonUtilities.my_color)
 
-        if not target_year.isnumeric():
-            SattoLog.print_warning("Input MUST be the String representation of a Year, e.g. '2013'!")
-            exit(152)
-        int_year = int(float(target_year))
-        if int_year > today.year or int_year < base_year:
-            SattoLog.print_warning("Input MUST be the String representation of a Year between {} and {}!"
-                                   .format(today.year, base_year))
-            exit(157)
+def get_int_year(target_year:str, base_year:int, p_debug:bool=False) -> int :
+    """
+    convert the string representation of a year to an int
+    :param target_year: to convert
+    :param   base_year: earliest possible year
+    :param     p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.get_int_year()", my_color)
 
-        return int_year
+    if not target_year.isnumeric():
+        SattoLog.print_warning("Input MUST be the String representation of a Year, e.g. '2013'!")
+        exit(155)
+    int_year = int(float(target_year))
+    if int_year > today.year or int_year < base_year:
+        SattoLog.print_warning("Input MUST be the String representation of a Year between {} and {}!"
+                               .format(today.year, base_year))
+        exit(160)
 
-    @staticmethod
-    def get_int_quarter(p_qtr:str) -> int :
-        """
-        convert the string representation of a quarter to an int
-        :param  p_qtr: to convert
-        """
-        SattoLog.print_text("CommonUtilities.get_int_quarter()", CommonUtilities.my_color)
+    return int_year
 
-        if not p_qtr.isnumeric():
-            SattoLog.print_warning("Input MUST be a String of 0..4!")
-            exit(171)
-        int_qtr = int(float(p_qtr))
-        if int_qtr > 4 or int_qtr < 0:
-            SattoLog.print_warning("Input MUST be a String of 0..4!")
-            exit(175)
 
-        return int_qtr
+def get_int_quarter(p_qtr:str, p_debug:bool=False) -> int :
+    """
+    convert the string representation of a quarter to an int
+    :param   p_qtr: to convert
+    :param p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.get_int_quarter()", my_color)
 
-    @staticmethod
-    def next_quarter_start(start_year:int, start_month:int) -> (int, int) :
-        """
-        get the year and month that starts the FOLLOWING quarter
-        :param  start_year
-        :param start_month
-        """
-        SattoLog.print_text("CommonUtilities.next_quarter_start()", CommonUtilities.my_color)
+    if not p_qtr.isnumeric():
+        SattoLog.print_warning("Input MUST be a String of 0..4!")
+        exit(174)
+    int_qtr = int(float(p_qtr))
+    if int_qtr > 4 or int_qtr < 0:
+        SattoLog.print_warning("Input MUST be a String of 0..4!")
+        exit(178)
 
-        # add number of months for a Quarter
-        next_month = start_month + QTR_MONTHS
+    return int_qtr
 
-        # use integer division to find out if the new end month is in a different year,
-        # what year it is, and what the end month number should be changed to.
-        next_year = start_year + ((next_month - 1) // YEAR_MONTHS)
-        next_month = ((next_month - 1) % YEAR_MONTHS) + 1
 
-        return next_year, next_month
+def next_quarter_start(start_year:int, start_month:int, p_debug:bool=False) -> (int, int) :
+    """
+    get the year and month that starts the FOLLOWING quarter
+    :param  start_year
+    :param start_month
+    :param     p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.next_quarter_start()", my_color)
 
-    @staticmethod
-    def current_quarter_end(start_year:int, start_month:int) -> date :
-        """
-        get the date that ends the CURRENT quarter
-        :param  start_year
-        :param start_month
-        """
-        SattoLog.print_text("CommonUtilities.current_quarter_end()", CommonUtilities.my_color)
+    # add number of months for a Quarter
+    next_month = start_month + QTR_MONTHS
 
-        end_year, end_month = CommonUtilities.next_quarter_start(start_year, start_month)
+    # use integer division to find out if the new end month is in a different year,
+    # what year it is, and what the end month number should be changed to.
+    next_year = start_year + ((next_month - 1) // YEAR_MONTHS)
+    next_month = ((next_month - 1) % YEAR_MONTHS) + 1
 
-        # last step, the end date is one day back from the start of the next period
-        # so we get a period end like 2010-03-31 instead of 2010-04-01
-        return date(end_year, end_month, 1) - ONE_DAY
+    return next_year, next_month
 
-    @staticmethod
-    def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int) -> (date, date) :
-        """
-        get the start and end dates for the quarters in the submitted range
-        :param  start_year
-        :param start_month
-        :param    num_qtrs: number of quarters to calculate
-        """
-        SattoLog.print_text("CommonUtilities.generate_quarter_boundaries()", CommonUtilities.my_color)
 
-        for i in range(num_qtrs):
-            yield(date(start_year, start_month, 1), CommonUtilities.current_quarter_end(start_year, start_month))
-            start_year, start_month = CommonUtilities.next_quarter_start(start_year, start_month)
+def current_quarter_end(start_year:int, start_month:int, p_debug:bool=False) -> date :
+    """
+    get the date that ends the CURRENT quarter
+    :param  start_year
+    :param start_month
+    :param     p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.current_quarter_end()", my_color)
 
-    @staticmethod
-    def save_to_json(fname:str, ts:str, json_data, indt:int=4, p_color:str=BLACK) -> str:
-        """
-        print json data to a file -- add a time string to get a unique file name each run
-        :param     fname: file path and name
-        :param        ts: timestamp to use
-        :param json_data: json compatible struct
-        :param      indt: indentation amount
-        :param   p_color: for printing
-        :return: file name
-        """
-        SattoLog.print_text("CommonUtilities.save_to_json()", CommonUtilities.my_color)
+    end_year, end_month = next_quarter_start(start_year, start_month)
 
-        out_file = fname + '_' + ts + ".json"
-        SattoLog.print_text("json file is '{}'\n".format(out_file), p_color)
-        fp = open(out_file, 'w')
-        json.dump(json_data, fp, indent=indt)
-        fp.close()
-        return out_file
+    # last step, the end date is one day back from the start of the next period
+    # so we get a period end like 2010-03-31 instead of 2010-04-01
+    return date(end_year, end_month, 1) - ONE_DAY
 
-# END class CommonUtilities
+
+def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, p_debug:bool=False) -> (date, date) :
+    """
+    get the start and end dates for the quarters in the submitted range
+    :param  start_year
+    :param start_month
+    :param    num_qtrs: number of quarters to calculate
+    :param     p_debug: debug printing
+    """
+    if p_debug: SattoLog.print_text("python_utilities.generate_quarter_boundaries()", my_color)
+
+    for i in range(num_qtrs):
+        yield(date(start_year, start_month, 1), current_quarter_end(start_year, start_month))
+        start_year, start_month = next_quarter_start(start_year, start_month)
+
+
+def save_to_json(fname:str, ts:str, json_data, indt:int=4, p_color:str=BLACK) -> str:
+    """
+    print json data to a file -- add a time string to get a unique file name each run
+    :param     fname: file path and name
+    :param        ts: timestamp to use
+    :param json_data: JSON compatible struct
+    :param      indt: indentation amount
+    :param   p_color: for printing
+    :return: file name
+    """
+    out_file = fname + '_' + ts + ".json"
+    SattoLog.print_text("JSON file is '{}'\n".format(out_file), p_color)
+    fp = open(out_file, 'w')
+    json.dump(json_data, fp, indent=indt)
+    fp.close()
+    return out_file
