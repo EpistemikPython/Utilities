@@ -59,7 +59,10 @@ class SattoLog:
         self.log_text = []
 
     def append(self, obj:object):
-        self.log_text.append(obj)
+        if isinstance(obj, str):
+            self.log_text.append(obj)
+        else:
+            self.log_text.append(repr(obj))
 
     def clear_log(self):
         self.log_text = []
