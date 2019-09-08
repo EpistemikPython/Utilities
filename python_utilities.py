@@ -11,10 +11,11 @@ __author__ = 'Mark Sattolo'
 __author_email__ = 'epistemik@gmail.com'
 __python_version__ = 3.6
 __created__ = '2019-04-07'
-__updated__ = '2019-09-06'
+__updated__ = '2019-09-08'
 
 import inspect
 import json
+from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 from types import FrameType
 
@@ -27,6 +28,8 @@ now:str  = today.strftime(FILE_DATE_STR + FILE_TIME_STR)
 DATE_STR_FORMAT = "\u0023%Y-%m-%d\u0025\u0025%H-%M-%S"
 dtnow  = dt.now()
 strnow = dtnow.strftime(DATE_STR_FORMAT)
+
+ZERO:Decimal = Decimal(0)
 
 # number of months
 QTR_MONTHS:int = 3
@@ -54,8 +57,9 @@ COLOR_OFF:str = COLOR_FLAG + '0m'
 
 
 class SattoLog:
-    def __init__(self, p_debug:bool=False):
-        self.debug = p_debug
+    def __init__(self, my_color:str=BLACK, do_logging:bool=False):
+        self.debug = do_logging
+        self.color = my_color
         self.log_text = []
 
     def append(self, obj:object):
@@ -70,15 +74,17 @@ class SattoLog:
     def get_log(self) -> list :
         return self.log_text
 
-    def print_info(self, info:object, color:str='', inspector:bool=True, newline:bool=True) -> str :
+    def print_info(self, info:object, p_color:str='', inspector:bool=True, newline:bool=True) -> str :
         """
-        Print information with choices of color, inspection info, newline
+        Print and/or save text information with choices of color, inspection info, newline
         """
         text = str(info)
+        color = p_color if p_color else self.color
         if self.debug:
             calling_frame = inspect.currentframe().f_back
             self.print_text(info, color, inspector, newline, calling_frame)
-            self.append(text)
+
+        self.append(text)
         return text
 
     def print_error(self, info:object) -> str :
@@ -93,26 +99,26 @@ class SattoLog:
 
     @staticmethod
     def print_warning(info:object, p_frame:FrameType=None) -> str :
-        calling_frame = p_frame if p_frame is not None else inspect.currentframe().f_back
+        calling_frame = p_frame if isinstance(p_frame, FrameType) else inspect.currentframe().f_back
         return SattoLog.print_text(info, BR_RED, p_frame=calling_frame)
 
     @staticmethod
-    def print_text(info:object, color:str='', inspector:bool=True, newline:bool=True, p_frame:FrameType=None) -> str :
+    def print_text(info:object, color:str=BLACK, inspector:bool=True, newline:bool=True, p_frame:FrameType=None) -> str :
         """
         Print information with choices of color, inspection info, newline
         """
         inspect_line = ''
-        if info is None:
+        if not info:
             info = '==========================================================================================================='
             inspector = False
         text = str(info)
         if inspector:
-            calling_frame = p_frame if p_frame is not None else inspect.currentframe().f_back
+            calling_frame = p_frame if isinstance(p_frame, FrameType) else inspect.currentframe().f_back
             parent_frame  = calling_frame.f_back
             calling_file  = inspect.getfile(calling_frame).split('/')[-1]
-            parent_file   = inspect.getfile(parent_frame).split('/')[-1] if parent_frame is not None else ''
+            parent_file   = inspect.getfile(parent_frame).split('/')[-1] if parent_frame else ''
             calling_line  = str(inspect.getlineno(calling_frame))
-            parent_line   = str(inspect.getlineno(parent_frame)) if parent_frame is not None else ''
+            parent_line   = str(inspect.getlineno(parent_frame)) if parent_frame else ''
             inspect_line  = '[' + parent_file + '@' + parent_line + '->' + calling_file + '@' + calling_line + ']: '
         print(inspect_line + color + text + COLOR_OFF, end=('\n' if newline else ''))
         return text
@@ -120,73 +126,70 @@ class SattoLog:
 # END class SattoLog
 
 
-my_color = BROWN
-
-
-def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, p_debug:bool=False) -> int :
+def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, logger:SattoLog=None) -> int :
     """
     calculate which row to update, factoring in the header row placed every so-many years
     :param    target_year: year to calculate for
     :param      base_year: starting year
     :param base_year_span: number of rows between equivalent positions in adjacent years, not including header rows
     :param       hdr_span: number of rows between header rows
-    :param        p_debug: debug printing
+    :param         logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.year_span()", my_color)
+    if logger: logger.print_info("python_utilities.year_span()")
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
     return int(year_diff * base_year_span) + hdr_adjustment
 
 
-def get_int_year(target_year:str, base_year:int, p_debug:bool=False) -> int :
+def get_int_year(target_year:str, base_year:int, logger:SattoLog=None) -> int :
     """
     convert the string representation of a year to an int
     :param target_year: to convert
     :param   base_year: earliest possible year
-    :param     p_debug: debug printing
+    :param      logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.get_int_year()", my_color)
+    if logger: logger.print_info("python_utilities.get_int_year()")
 
     if not target_year.isnumeric():
         SattoLog.print_warning("Input MUST be the String representation of a Year, e.g. '2013'!")
-        exit(155)
+        exit(156)
     int_year = int(float(target_year))
     if int_year > today.year or int_year < base_year:
         SattoLog.print_warning("Input MUST be the String representation of a Year between {} and {}!"
                                .format(today.year, base_year))
-        exit(160)
+        exit(161)
 
     return int_year
 
 
-def get_int_quarter(p_qtr:str, p_debug:bool=False) -> int :
+def get_int_quarter(p_qtr:str, logger:SattoLog=None) -> int :
     """
     convert the string representation of a quarter to an int
     :param   p_qtr: to convert
-    :param p_debug: debug printing
+    :param logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.get_int_quarter()", my_color)
+    if logger: logger.print_info("python_utilities.get_int_quarter()")
 
     if not p_qtr.isnumeric():
         SattoLog.print_warning("Input MUST be a String of 0..4!")
-        exit(174)
+        exit(176)
     int_qtr = int(float(p_qtr))
     if int_qtr > 4 or int_qtr < 0:
         SattoLog.print_warning("Input MUST be a String of 0..4!")
-        exit(178)
+        exit(180)
 
     return int_qtr
 
 
-def next_quarter_start(start_year:int, start_month:int, p_debug:bool=False) -> (int, int) :
+def next_quarter_start(start_year:int, start_month:int, logger:SattoLog=None) -> (int, int) :
     """
     get the year and month that starts the FOLLOWING quarter
     :param  start_year
     :param start_month
-    :param     p_debug: debug printing
+    :param      logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.next_quarter_start()", my_color)
+    if logger: logger.print_info("python_utilities.next_quarter_start()")
 
     # add number of months for a Quarter
     next_month = start_month + QTR_MONTHS
@@ -199,14 +202,14 @@ def next_quarter_start(start_year:int, start_month:int, p_debug:bool=False) -> (
     return next_year, next_month
 
 
-def current_quarter_end(start_year:int, start_month:int, p_debug:bool=False) -> date :
+def current_quarter_end(start_year:int, start_month:int, logger:SattoLog=None) -> date :
     """
     get the date that ends the CURRENT quarter
     :param  start_year
     :param start_month
-    :param     p_debug: debug printing
+    :param     logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.current_quarter_end()", my_color)
+    if logger: logger.print_info("python_utilities.current_quarter_end()")
 
     end_year, end_month = next_quarter_start(start_year, start_month)
 
@@ -215,15 +218,15 @@ def current_quarter_end(start_year:int, start_month:int, p_debug:bool=False) -> 
     return date(end_year, end_month, 1) - ONE_DAY
 
 
-def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, p_debug:bool=False) -> (date, date) :
+def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:SattoLog=None) -> (date, date) :
     """
     get the start and end dates for the quarters in the submitted range
     :param  start_year
     :param start_month
     :param    num_qtrs: number of quarters to calculate
-    :param     p_debug: debug printing
+    :param     logger: debug printing
     """
-    if p_debug: SattoLog.print_text("python_utilities.generate_quarter_boundaries()", my_color)
+    if logger: logger.print_info("python_utilities.generate_quarter_boundaries()")
 
     for i in range(num_qtrs):
         yield(date(start_year, start_month, 1), current_quarter_end(start_year, start_month))
