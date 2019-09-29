@@ -11,7 +11,7 @@ __author__ = 'Mark Sattolo'
 __author_email__ = 'epistemik@gmail.com'
 __python_version__ = 3.6
 __created__ = '2019-04-07'
-__updated__ = '2019-09-08'
+__updated__ = '2019-09-29'
 
 import inspect
 import json
@@ -74,26 +74,27 @@ class SattoLog:
     def get_log(self) -> list :
         return self.log_text
 
-    def print_info(self, info:object, p_color:str='', inspector:bool=True, newline:bool=True) -> str :
+    def print_info(self, info:object, p_color:str='', inspector:bool=True,
+                   newline:bool=True, p_frame:FrameType=None) -> str :
         """
         Print and/or save text information with choices of color, inspection info, newline
         """
         text = str(info)
         color = p_color if p_color else self.color
         if self.debug:
-            calling_frame = inspect.currentframe().f_back
+            calling_frame = inspect.currentframe().f_back if p_frame is None else p_frame
             self.print_text(info, color, inspector, newline, calling_frame)
 
         self.append(text)
         return text
 
-    def print_error(self, info:object) -> str :
+    def print_error(self, info:object, p_frame:FrameType=None) -> str :
         """
         Print Error information in RED with inspection info
         """
         text = str(info)
         if self.debug:
-            calling_frame = inspect.currentframe().f_back
+            calling_frame = inspect.currentframe().f_back if p_frame is None else p_frame
             self.print_warning(info, calling_frame)
         return text
 
@@ -103,7 +104,8 @@ class SattoLog:
         return SattoLog.print_text(info, BR_RED, p_frame=calling_frame)
 
     @staticmethod
-    def print_text(info:object, color:str=BLACK, inspector:bool=True, newline:bool=True, p_frame:FrameType=None) -> str :
+    def print_text(info:object, color:str=BLACK, inspector:bool=True,
+                   newline:bool=True, p_frame:FrameType=None) -> str :
         """
         Print information with choices of color, inspection info, newline
         """
