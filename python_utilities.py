@@ -18,6 +18,7 @@ import json
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 from types import FrameType
+from traceback import print_tb
 
 CELL_TIME_STR:str = "%H:%M:%S"
 FILE_DATE_STR:str = "%Y-%m-%d"
@@ -74,54 +75,56 @@ class SattoLog:
     def get_log(self) -> list :
         return self.log_text
 
-    def print_info(self, info:object, p_color:str='', inspector:bool=True,
-                   newline:bool=True, p_frame:FrameType=None) -> str:
+    def print_info(self, p_txt:object, p_color:str='', inspector:bool=True, newline:bool=True, p_info=None) -> str:
         """
         Print and/or save text information with choices of color, inspection info, newline
         """
-        text = str(info)
+        text = str(p_txt)
         color = p_color if p_color else self.color
         if self.debug:
-            calling_frame = inspect.currentframe().f_back if p_frame is None else p_frame
-            self.print_text(info, color, inspector, newline, calling_frame)
+            calling_info = p_info if p_info else inspect.currentframe().f_back
+            self.print_text(p_txt, color, inspector, newline, calling_info)
 
         self.append(text)
         return text
 
-    def print_error(self, info:object, p_frame:FrameType=None) -> str:
+    def print_error(self, p_txt:object, pe_info=None) -> str:
         """
         Print Error information in RED with inspection info
         """
-        text = str(info)
+        text = str(p_txt)
         if self.debug:
-            calling_frame = inspect.currentframe().f_back if p_frame is None else p_frame
-            self.print_warning(info, calling_frame)
+            calling_info = pe_info if pe_info else inspect.currentframe().f_back
+            self.print_warning(p_txt, calling_info)
         return text
 
     @staticmethod
-    def print_warning(info:object, p_frame:FrameType=None) -> str:
-        calling_frame = p_frame if isinstance(p_frame, FrameType) else inspect.currentframe().f_back
-        return SattoLog.print_text(info, BR_RED, p_frame=calling_frame)
+    def print_warning(p_txt:object, pw_info:object=None) -> str:
+        calling_info = pw_info if pw_info else inspect.currentframe().f_back
+        return SattoLog.print_text(p_txt, BR_RED, pt_info=calling_info)
 
     @staticmethod
-    def print_text(info:object, color:str=BLACK, inspector:bool=True,
-                   newline:bool=True, p_frame:FrameType=None) -> str:
+    def print_text(p_txt:object, color:str=BLACK, inspector:bool=True, newline:bool=True, pt_info:object=None) -> str:
         """
         Print information with choices of color, inspection info, newline
         """
         inspect_line = ''
-        if not info:
-            info = '==========================================================================================================='
+        if not p_txt:
+            p_txt = '==========================================================================================================='
             inspector = False
-        text = str(info)
+        text = str(p_txt)
         if inspector:
-            calling_frame = p_frame if isinstance(p_frame, FrameType) else inspect.currentframe().f_back
-            parent_frame  = calling_frame.f_back
-            calling_file  = inspect.getfile(calling_frame).split('/')[-1]
-            parent_file   = inspect.getfile(parent_frame).split('/')[-1] if parent_frame else ''
-            calling_line  = str(inspect.getlineno(calling_frame))
-            parent_line   = str(inspect.getlineno(parent_frame)) if parent_frame else ''
-            inspect_line  = '[' + parent_file + '@' + parent_line + '->' + calling_file + '@' + calling_line + ']: '
+            try:
+                print_tb(pt_info, limit=5)
+            except:
+                print(F"type(pt_info) = {type(pt_info)}")
+                calling_frame = pt_info if isinstance(pt_info, FrameType) else inspect.currentframe().f_back
+                parent_frame  = calling_frame.f_back
+                calling_file  = inspect.getfile(calling_frame).split('/')[-1]
+                parent_file   = inspect.getfile(parent_frame).split('/')[-1] if parent_frame else ''
+                calling_line  = str(inspect.getlineno(calling_frame))
+                parent_line   = str(inspect.getlineno(parent_frame)) if parent_frame else ''
+                inspect_line  = '[' + parent_file + '@' + parent_line + '->' + calling_file + '@' + calling_line + ']: '
         print(inspect_line + color + text + COLOR_OFF, end=('\n' if newline else ''))
         return text
 
