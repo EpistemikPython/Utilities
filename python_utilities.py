@@ -103,6 +103,7 @@ class SattoLog:
         calling_info = pw_info if pw_info else inspect.currentframe().f_back
         return SattoLog.print_text(p_txt, BR_RED, pt_info=calling_info)
 
+    # noinspection PyBroadException
     @staticmethod
     def print_text(p_txt:object, color:str=BLACK, inspector:bool=True, newline:bool=True, pt_info:object=None) -> str:
         """
@@ -117,7 +118,7 @@ class SattoLog:
             try:
                 print_tb(pt_info, limit=5)
             except:
-                print(F"type(pt_info) = {type(pt_info)}")
+                # print(F"type(pt_info) = {type(pt_info)}")
                 calling_frame = pt_info if isinstance(pt_info, FrameType) else inspect.currentframe().f_back
                 parent_frame  = calling_frame.f_back
                 calling_file  = inspect.getfile(calling_frame).split('/')[-1]
@@ -254,7 +255,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
     if logger: logger.print_info("python_utilities.generate_quarter_boundaries()")
 
     for i in range(num_qtrs):
-        yield(date(start_year, start_month, 1), current_quarter_end(start_year, start_month))
+        yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
