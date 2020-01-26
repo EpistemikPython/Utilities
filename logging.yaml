@@ -1,0 +1,41 @@
+version: 1
+formatters:
+    simple:
+        style: '$'
+        format: '$levelname - $funcName()[$lineno] : $message'
+    complex:
+        style: '$'
+        format: '$levelname[$asctime] / $funcName() $filename[$lineno] > $message'
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: simple
+        stream: ext://sys.stdout
+    mon_file:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: 'GncTxsFromMonarch'
+        filters: [special]
+    ggl_file:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: 'UpdateGoogleSheet'
+        filters: [special]
+filters:
+    special:
+        (): python_utilities.SpecialFilter
+loggers:
+    monarch:
+        level: DEBUG
+        handlers: [console,mon_file]
+        propagate: no
+    google:
+        level: DEBUG
+        handlers: [console,ggl_file]
+        propagate: no
+root:
+    level: INFO
+    handlers: [console]

@@ -12,25 +12,44 @@ __author_email__ = 'epistemik@gmail.com'
 __python_version__  = 3.9
 __gnucash_version__ = 3.8
 __created__ = '2019-04-07'
-__updated__ = '2020-01-11'
+__updated__ = '2020-01-25'
 
 import inspect
 import json
+import shutil
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
-from types import FrameType
-from traceback import print_tb
 import logging as lg
 
 CELL_TIME_STR:str = "%H:%M:%S"
 FILE_DATE_STR:str = "%Y-%m-%d"
-FILE_TIME_STR:str = "T%H-%M-%S"
+FILE_TIME_STR:str = "T%Hh%M"
 today:dt = dt.now()
 now:str  = today.strftime(FILE_DATE_STR + FILE_TIME_STR)
 
 DATE_STR_FORMAT = "\u0023%Y-%m-%d\u0025\u0025%H-%M-%S"
 dtnow  = dt.now()
 strnow = dtnow.strftime(DATE_STR_FORMAT)
+
+BASE_PYTHON_FOLDER = '/home/marksa/dev/git/Python/'
+YAML_CONFIG_FILE = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
+STD_GNC_OUT_SUFFIX = '.gncout'
+
+saved_log_info = list()
+
+
+class SpecialFilter(lg.Filter):
+    def filter(self, record):
+        # SAVE A COPY OF LOG MESSAGES
+        saved_log_info.append(record.msg + '\n')
+        return True
+
+
+def finish_logging(basename:str, timestamp:str=now, sfx:str=STD_GNC_OUT_SUFFIX):
+    """change the standard log name to a time-stamped name to save each execution separately"""
+    print('finish_logging')
+    shutil.move(basename, basename + '_' + timestamp + sfx)
+
 
 ZERO:Decimal = Decimal(0)
 
@@ -39,24 +58,6 @@ QTR_MONTHS:int = 3
 YEAR_MONTHS:int = 12
 
 ONE_DAY:timedelta = timedelta(days=1)
-
-COLOR_FLAG:str = '\x1b['
-RED:str     = COLOR_FLAG + '31m'
-GREEN:str   = COLOR_FLAG + '32m'
-BROWN:str   = COLOR_FLAG + '33m'
-BLUE:str    = COLOR_FLAG + '34m'
-MAGENTA:str = COLOR_FLAG + '35m'
-CYAN:str    = COLOR_FLAG + '36m'
-BR_RED:str   = COLOR_FLAG + '91m'
-BR_GREEN:str = COLOR_FLAG + '92m'
-YELLOW:str   = COLOR_FLAG + '93m'
-BR_BLUE:str  = COLOR_FLAG + '94m'
-PINK:str     = COLOR_FLAG + '95m'
-BR_CYAN:str  = COLOR_FLAG + '96m'
-BLACK:str     = COLOR_FLAG + '30m'
-GREY:str      = COLOR_FLAG + '90m'
-WHITE:str     = COLOR_FLAG + '37m'
-COLOR_OFF:str = COLOR_FLAG + '0m'
 
 
 def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
@@ -195,78 +196,3 @@ def save_to_json(fname:str, ts:str, json_data, indt:int=4, p_logger:lg.Logger=No
     json.dump(json_data, fp, indent=indt)
     fp.close()
     return out_file
-
-
-class SattoLog:
-    def __init__(self, my_color:str=BLACK, do_printing:bool=False):
-        self.debug = do_printing
-        self.color = my_color
-        self.log_text = []
-
-    def append(self, obj:object):
-        if isinstance(obj, str):
-            self.log_text.append(obj)
-        else:
-            self.log_text.append(repr(obj))
-
-    def clear_log(self):
-        self.log_text = []
-
-    def get_log(self) -> list :
-        return self.log_text
-
-    def print_info(self, p_txt:object, p_color:str='', inspector:bool=True, newline:bool=True, p_info=None) -> str:
-        """
-        Print and/or save text information with choices of color, inspection info, newline
-        """
-        text = str(p_txt)
-        color = p_color if p_color else self.color
-        if self.debug:
-            calling_info = p_info if p_info else inspect.currentframe().f_back
-            self.print_text(p_txt, color, inspector, newline, calling_info)
-
-        self.append(text)
-        return text
-
-    def print_error(self, p_txt:object, pe_info=None) -> str:
-        """
-        Print Error information in RED with inspection info
-        """
-        text = str(p_txt)
-        if self.debug:
-            calling_info = pe_info if pe_info else inspect.currentframe().f_back
-            self.print_warning(p_txt, calling_info)
-        return text
-
-    @staticmethod
-    def print_warning(p_txt:object, pw_info:object=None) -> str:
-        calling_info = pw_info if pw_info else inspect.currentframe().f_back
-        return SattoLog.print_text(p_txt, BR_RED, pt_info=calling_info)
-
-    # noinspection PyBroadException
-    @staticmethod
-    def print_text(p_txt:object, color:str=BLACK, inspector:bool=True, newline:bool=True, pt_info:object=None) -> str:
-        """
-        Print information with choices of color, inspection info, newline
-        """
-        inspect_line = ''
-        if not p_txt:
-            p_txt = '==========================================================================================================='
-            inspector = False
-        text = str(p_txt)
-        if inspector:
-            try:
-                print_tb(pt_info, limit=5)
-            except:
-                # print(F"type(pt_info) = {type(pt_info)}")
-                calling_frame = pt_info if isinstance(pt_info, FrameType) else inspect.currentframe().f_back
-                parent_frame  = calling_frame.f_back
-                calling_file  = inspect.getfile(calling_frame).split('/')[-1]
-                parent_file   = inspect.getfile(parent_frame).split('/')[-1] if parent_frame else ''
-                calling_line  = str(inspect.getlineno(calling_frame))
-                parent_line   = str(inspect.getlineno(parent_frame)) if parent_frame else ''
-                inspect_line  = '[' + parent_file + '@' + parent_line + '->' + calling_file + '@' + calling_line + ']: '
-        print(inspect_line + color + text + COLOR_OFF, end=('\n' if newline else ''))
-        return text
-
-# END class SattoLog
