@@ -1,40 +1,30 @@
 version: 1
 formatters:
     simple:
-        style: '$'
-        format: '$levelname - $funcName()[$lineno] : $message'
+        style: $
+        format: '$levelname - $filename($lineno): $message'
     complex:
-        style: '$'
-        format: '$levelname[$asctime] / $funcName() $filename[$lineno] > $message'
+        style: $
+        format: '$levelname[$asctime] / $filename:$funcName($lineno) > $message'
 handlers:
     console:
         class: logging.StreamHandler
         level: INFO
         formatter: simple
         stream: ext://sys.stdout
-    mon_file:
+    fileh:
         class: logging.FileHandler
         level: DEBUG
         formatter: complex
-        filename: 'GncTxsFromMonarch'
-        filters: [special]
-    ggl_file:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: 'UpdateGoogleSheet'
+        filename: GnucashLog
         filters: [special]
 filters:
     special:
         (): python_utilities.SpecialFilter
 loggers:
-    monarch:
+    gnucash:
         level: DEBUG
-        handlers: [console,mon_file]
-        propagate: no
-    google:
-        level: DEBUG
-        handlers: [console,ggl_file]
+        handlers: [console,fileh]
         propagate: no
 root:
     level: INFO

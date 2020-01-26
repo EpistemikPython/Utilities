@@ -12,7 +12,7 @@ __author_email__ = 'epistemik@gmail.com'
 __python_version__  = 3.9
 __gnucash_version__ = 3.8
 __created__ = '2019-04-07'
-__updated__ = '2020-01-25'
+__updated__ = '2020-01-26'
 
 import inspect
 import json
@@ -32,7 +32,10 @@ dtnow  = dt.now()
 strnow = dtnow.strftime(DATE_STR_FORMAT)
 
 BASE_PYTHON_FOLDER = '/home/marksa/dev/git/Python/'
-YAML_CONFIG_FILE = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
+YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
+LOG_BASENAME       = 'GnucashLog'
+MONARCH_BASENAME   = 'GncTxsFromMonarch'
+GOOGLE_BASENAME    = 'UpdateGoogleSheet'
 STD_GNC_OUT_SUFFIX = '.gncout'
 
 saved_log_info = list()
@@ -45,10 +48,10 @@ class SpecialFilter(lg.Filter):
         return True
 
 
-def finish_logging(basename:str, timestamp:str=now, sfx:str=STD_GNC_OUT_SUFFIX):
+def finish_logging(logname:str, timestamp:str=now, sfx:str=STD_GNC_OUT_SUFFIX):
     """change the standard log name to a time-stamped name to save each execution separately"""
     print('finish_logging')
-    shutil.move(basename, basename + '_' + timestamp + sfx)
+    shutil.move(LOG_BASENAME, logname + '_' + timestamp + sfx)
 
 
 ZERO:Decimal = Decimal(0)
