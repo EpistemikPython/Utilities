@@ -12,7 +12,7 @@ __author_email__ = 'epistemik@gmail.com'
 __python_version__  = 3.9
 __gnucash_version__ = 3.8
 __created__ = '2019-04-07'
-__updated__ = '2020-01-26'
+__updated__ = '2020-01-27'
 
 import inspect
 import json
@@ -22,14 +22,12 @@ from datetime import date, timedelta, datetime as dt
 import logging as lg
 
 CELL_TIME_STR:str = "%H:%M:%S"
-FILE_DATE_STR:str = "%Y-%m-%d"
+CELL_DATE_STR:str = "%Y-%m-%d"
+FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%Hh%M"
-today:dt = dt.now()
-now:str  = today.strftime(FILE_DATE_STR + FILE_TIME_STR)
-
-DATE_STR_FORMAT = "\u0023%Y-%m-%d\u0025\u0025%H-%M-%S"
-dtnow  = dt.now()
-strnow = dtnow.strftime(DATE_STR_FORMAT)
+FILE_DATE_FORMAT  = FILE_DATE_STR + FILE_TIME_STR
+now_dt:dt    = dt.now()
+file_ts:str  = now_dt.strftime(FILE_DATE_FORMAT)
 
 BASE_PYTHON_FOLDER = '/home/marksa/dev/git/Python/'
 YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
@@ -44,11 +42,11 @@ saved_log_info = list()
 class SpecialFilter(lg.Filter):
     def filter(self, record):
         # SAVE A COPY OF LOG MESSAGES
-        saved_log_info.append(record.msg + '\n')
+        saved_log_info.append(str(record.msg) + '\n')
         return True
 
 
-def finish_logging(logname:str, timestamp:str=now, sfx:str=STD_GNC_OUT_SUFFIX):
+def finish_logging(logname:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
     """change the standard log name to a time-stamped name to save each execution separately"""
     print('finish_logging')
     shutil.move(LOG_BASENAME, logname + '_' + timestamp + sfx)
@@ -72,7 +70,7 @@ def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, 
     :param       hdr_span: number of rows between header rows
     :param         logger: debug printing
     """
-    if logger: logger.info("python_utilities.year_span()")
+    if logger: logger.debug("python_utilities.year_span()")
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
@@ -86,7 +84,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     :param   base_year: earliest possible year
     :param      logger: debug printing
     """
-    if logger: logger.info("python_utilities.get_int_year()")
+    if logger: logger.debug("python_utilities.get_int_year()")
 
     if not target_year.isnumeric():
         msg = "Input MUST be the String representation of a Year, e.g. '2013'!"
@@ -96,8 +94,8 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
         raise msg
 
     int_year = int(float(target_year))
-    if int_year > today.year or int_year < base_year:
-        msg = F"Input MUST be the String representation of a Year between {today.year} and {base_year}!"
+    if int_year > now_dt.year or int_year < base_year:
+        msg = F"Input MUST be the String representation of a Year between {now_dt.year} and {base_year}!"
         c_frame = inspect.currentframe().f_back
         if logger:
             logger.error(msg, c_frame)
@@ -112,7 +110,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     :param   p_qtr: to convert
     :param  logger
     """
-    if logger: logger.info("python_utilities.get_int_quarter()")
+    if logger: logger.debug("python_utilities.get_int_quarter()")
     msg = "Input MUST be a String of 0..4!"
 
     if not p_qtr.isnumeric():
@@ -138,7 +136,7 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
     :param start_month
     :param      logger
     """
-    if logger: logger.info("python_utilities.next_quarter_start()")
+    if logger: logger.debug("python_utilities.next_quarter_start()")
 
     # add number of months for a Quarter
     next_month = start_month + QTR_MONTHS
@@ -176,25 +174,23 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
     :param    num_qtrs: number of quarters to calculate
     :param      logger
     """
-    if logger: logger.info("python_utilities.generate_quarter_boundaries()")
+    if logger: logger.debug("python_utilities.generate_quarter_boundaries()")
 
     for i in range(num_qtrs):
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
-def save_to_json(fname:str, ts:str, json_data, indt:int=4, p_logger:lg.Logger=None) -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4) -> str:
     """
-    print json data to a file -- add a time string to get a unique file name each run
-    :param     fname: file path and name
+    print json data to a file -- add a timestamp to get a unique file name each run
+    :param     fname: file name
     :param        ts: timestamp to use
     :param json_data: JSON compatible struct
     :param      indt: indentation amount
-    :param  p_logger
     :return: file name
     """
-    out_file = fname + '_' + ts + ".json"
-    if p_logger: p_logger.info("JSON file is '{}'\n".format(out_file))
+    out_file = 'json/' + fname + '_' + ts + '.json'
     fp = open(out_file, 'w')
     json.dump(json_data, fp, indent=indt)
     fp.close()
