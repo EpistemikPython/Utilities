@@ -7,12 +7,11 @@
 #
 # Copyright (c) 2020 Mark Sattolo <epistemik@gmail.com>
 #
-__author__ = 'Mark Sattolo'
-__author_email__ = 'epistemik@gmail.com'
-__python_version__  = 3.9
-__gnucash_version__ = 3.8
+__author__         = 'Mark Sattolo'
+__author_email__   = 'epistemik@gmail.com'
+__python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-01-27'
+__updated__ = '2020-01-28'
 
 import inspect
 import json
@@ -21,15 +20,20 @@ from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 import logging as lg
 
+FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
 CELL_DATE_STR:str = "%Y-%m-%d"
 FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%Hh%M"
 FILE_DATE_FORMAT  = FILE_DATE_STR + FILE_TIME_STR
-now_dt:dt    = dt.now()
-file_ts:str  = now_dt.strftime(FILE_DATE_FORMAT)
+RUN_DATE_FORMAT   = CELL_DATE_STR + '_' + FXN_TIME_STR
+now_dt:dt         = dt.now()
+run_ts:str        = now_dt.strftime(RUN_DATE_FORMAT)
+print(F"run_ts = {run_ts}")
+file_ts:str       = now_dt.strftime(FILE_DATE_FORMAT)
+print(F"file_ts = {file_ts}")
 
-BASE_PYTHON_FOLDER = '/home/marksa/dev/git/Python/'
+BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
 YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
 LOG_BASENAME       = 'GnucashLog'
 MONARCH_BASENAME   = 'GncTxsFromMonarch'
@@ -48,8 +52,9 @@ class SpecialFilter(lg.Filter):
 
 def finish_logging(logname:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
     """change the standard log name to a time-stamped name to save each execution separately"""
-    print('finish_logging')
-    shutil.move(LOG_BASENAME, logname + '_' + timestamp + sfx)
+    log_file = logname + '_' + timestamp + sfx
+    print(F"finish logging to {log_file}")
+    shutil.move(LOG_BASENAME, log_file)
 
 
 ZERO:Decimal = Decimal(0)
@@ -61,6 +66,10 @@ YEAR_MONTHS:int = 12
 ONE_DAY:timedelta = timedelta(days=1)
 
 
+def get_current_time():
+    return dt.now().strftime(CELL_DATE_STR + 'T' + FXN_TIME_STR)
+
+
 def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
     """
     calculate which row to update, factoring in the header row placed every so-many years
@@ -68,9 +77,9 @@ def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, 
     :param      base_year: starting year
     :param base_year_span: number of rows between equivalent positions in adjacent years, not including header rows
     :param       hdr_span: number of rows between header rows
-    :param         logger: debug printing
+    :param         logger
     """
-    if logger: logger.debug("python_utilities.year_span()")
+    if logger: logger.debug(get_current_time())
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
@@ -82,9 +91,9 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     convert the string representation of a year to an int
     :param target_year: to convert
     :param   base_year: earliest possible year
-    :param      logger: debug printing
+    :param      logger
     """
-    if logger: logger.debug("python_utilities.get_int_year()")
+    if logger: logger.debug(get_current_time())
 
     if not target_year.isnumeric():
         msg = "Input MUST be the String representation of a Year, e.g. '2013'!"
@@ -110,7 +119,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     :param   p_qtr: to convert
     :param  logger
     """
-    if logger: logger.debug("python_utilities.get_int_quarter()")
+    if logger: logger.debug(get_current_time())
     msg = "Input MUST be a String of 0..4!"
 
     if not p_qtr.isnumeric():
@@ -136,7 +145,7 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
     :param start_month
     :param      logger
     """
-    if logger: logger.debug("python_utilities.next_quarter_start()")
+    if logger: logger.debug(get_current_time())
 
     # add number of months for a Quarter
     next_month = start_month + QTR_MONTHS
@@ -156,7 +165,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     :param start_month
     :param      logger
     """
-    if logger: logger.info("python_utilities.current_quarter_end()")
+    if logger: logger.info(get_current_time())
 
     end_year, end_month = next_quarter_start(start_year, start_month)
 
@@ -174,7 +183,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
     :param    num_qtrs: number of quarters to calculate
     :param      logger
     """
-    if logger: logger.debug("python_utilities.generate_quarter_boundaries()")
+    if logger: logger.debug(get_current_time())
 
     for i in range(num_qtrs):
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
