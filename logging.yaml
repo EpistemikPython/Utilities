@@ -18,6 +18,49 @@ handlers:
         formatter: complex
         filename: GnucashLog
         filters: [special]
+        delay: yes
+    file_monarch:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: CopyMonarchLog
+        filters: [special]
+        delay: yes
+    file_revexp:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: RevExpLog
+        filters: [special]
+        delay: yes
+    file_balance:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: BalanceLog
+        filters: [special]
+        delay: yes
+    file_assets:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: AssetsLog
+        filters: [special]
+        delay: yes
+    file_updates:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: UpdateGoogleSheet
+        filters: [special]
+        delay: yes
+    file_reports:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: GncTxsFromMonarch
+        filters: [special]
+        delay: yes
 filters:
     special:
         (): python_utilities.SpecialFilter
@@ -25,6 +68,30 @@ loggers:
     gnucash:
         level: DEBUG
         handlers: [console,fileh]
+        propagate: no
+    updates:
+        level: DEBUG
+        handlers: [console,file_updates]
+        propagate: no
+    reports:
+        level: DEBUG
+        handlers: [console,file_reports]
+        propagate: no
+    monarch:
+        level: DEBUG
+        handlers: [console,fileh,file_monarch]
+        propagate: no
+    revexp:
+        level: DEBUG
+        handlers: [console,fileh,file_revexp]
+        propagate: no
+    balance:
+        level: DEBUG
+        handlers: [console,fileh,file_balance]
+        propagate: no
+    assets:
+        level: DEBUG
+        handlers: [console,fileh,file_assets]
         propagate: no
 root:
     level: INFO

@@ -27,17 +27,25 @@ FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%Hh%M"
 FILE_DATE_FORMAT  = FILE_DATE_STR + FILE_TIME_STR
 RUN_DATE_FORMAT   = CELL_DATE_STR + '_' + FXN_TIME_STR
-now_dt:dt         = dt.now()
-run_ts:str        = now_dt.strftime(RUN_DATE_FORMAT)
-print(F"run_ts = {run_ts}")
-file_ts:str       = now_dt.strftime(FILE_DATE_FORMAT)
-print(F"file_ts = {file_ts}")
+
+now_dt:dt  = dt.now()
+run_ts:str = now_dt.strftime(RUN_DATE_FORMAT)
+print(F"{__file__}: run_ts = {run_ts}")
+file_ts:str = now_dt.strftime(FILE_DATE_FORMAT)
+print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
 YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
-LOG_BASENAME       = 'GnucashLog'
-MONARCH_BASENAME   = 'GncTxsFromMonarch'
-GOOGLE_BASENAME    = 'UpdateGoogleSheet'
+
+LOGGERS = {
+    'startUI.py'             : ['gnucash', 'GnucashLog'] ,
+    'UpdateBudgetQtrly'      : ['updates', 'UpdateGoogleSheet'] ,
+    'MonarchGnucashServices' : ['reports', 'GncTxsFromMonarch'] ,
+    'updateRevExps.py'       : ['revexp' , 'RevExpLog'] ,
+    'updateAssets.py'        : ['assets' , 'AssetsLog'] ,
+    'updateBalance.py'       : ['balance', 'BalanceLog'] ,
+    'parseMonarchCopyRep.py' : ['monarch', 'CopyMonarchLog']
+}
 STD_GNC_OUT_SUFFIX = '.gncout'
 
 saved_log_info = list()
@@ -50,11 +58,11 @@ class SpecialFilter(lg.Filter):
         return True
 
 
-def finish_logging(logname:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
-    """change the standard log name to a time-stamped name to save each execution separately"""
-    log_file = logname + '_' + timestamp + sfx
+def finish_logging(logger_name:str, log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
+    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
+    log_file = log_name + '_' + timestamp + sfx
     print(F"finish logging to {log_file}")
-    shutil.move(LOG_BASENAME, log_file)
+    shutil.move(LOGGERS.get(logger_name)[1], log_file)
 
 
 ZERO:Decimal = Decimal(0)
