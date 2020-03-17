@@ -19,6 +19,8 @@ import shutil
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 import logging as lg
+import yaml
+import logging.config as lgconf
 
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
@@ -58,12 +60,22 @@ class SpecialFilter(lg.Filter):
         return True
 
 
-def finish_logging(logger_name:str, log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
-    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
-    log_file = log_name + '_' + timestamp + sfx
-    print(F"finish logging to {log_file}")
-    shutil.move(LOGGERS.get(logger_name)[1], log_file)
+def get_logger(p_lgr:str):
+    print(F"current logger = {p_lgr}")
+    return lg.getLogger(p_lgr)
 
+
+def finish_logging(run_log_name:str, custom_log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
+    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
+    final_log_name = custom_log_name + '_' + timestamp + sfx
+    print(F"finish logging to {final_log_name}")
+    shutil.move(LOGGERS.get(run_log_name)[1], final_log_name)
+
+
+# load the logging config
+with open(YAML_CONFIG_FILE, 'r') as fp:
+    log_cfg = yaml.safe_load(fp.read())
+lgconf.dictConfig(log_cfg)
 
 ZERO:Decimal = Decimal(0)
 
@@ -208,7 +220,7 @@ def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4) -> str
     :return: file name
     """
     out_file = 'json/' + fname + '_' + ts + '.json'
-    fp = open(out_file, 'w')
-    json.dump(json_data, fp, indent=indt)
-    fp.close()
+    print(F"dump to json file: {out_file}")
+    with open(out_file, 'w') as jfp:
+        json.dump(json_data, jfp, indent=indt)
     return out_file

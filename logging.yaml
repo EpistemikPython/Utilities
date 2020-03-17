@@ -79,19 +79,19 @@ loggers:
         propagate: no
     monarch:
         level: DEBUG
-        handlers: [console,fileh,file_monarch]
+        handlers: [console,file_monarch]
         propagate: no
     revexp:
         level: DEBUG
-        handlers: [console,fileh,file_revexp]
+        handlers: [console,file_revexp]
         propagate: no
     balance:
         level: DEBUG
-        handlers: [console,fileh,file_balance]
+        handlers: [console,file_balance]
         propagate: no
     assets:
         level: DEBUG
-        handlers: [console,fileh,file_assets]
+        handlers: [console,file_assets]
         propagate: no
 root:
     level: INFO
