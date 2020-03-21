@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-01-28'
+__updated__ = '2020-03-21'
 
 import inspect
 import json
@@ -39,7 +39,7 @@ print(F"{__file__}: file_ts = {file_ts}")
 BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
 YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
 
-LOGGERS = {
+LOGGERS = { # MUST agree with settings in YAML_CONFIG_FILE
     'startUI.py'             : ['gnucash', 'GnucashLog'] ,
     'UpdateBudgetQtrly'      : ['updates', 'UpdateGoogleSheet'] ,
     'MonarchGnucashServices' : ['reports', 'GncTxsFromMonarch'] ,
@@ -60,22 +60,27 @@ class SpecialFilter(lg.Filter):
         return True
 
 
-def get_logger(p_lgr:str):
-    print(F"current logger = {p_lgr}")
-    return lg.getLogger(p_lgr)
-
-
-def finish_logging(run_log_name:str, custom_log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
-    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
-    final_log_name = custom_log_name + '_' + timestamp + sfx
-    print(F"finish logging to {final_log_name}")
-    shutil.move(LOGGERS.get(run_log_name)[1], final_log_name)
-
-
 # load the logging config
 with open(YAML_CONFIG_FILE, 'r') as fp:
     log_cfg = yaml.safe_load(fp.read())
 lgconf.dictConfig(log_cfg)
+
+
+def get_logger(log_key:str):
+    log_info = LOGGERS.get(log_key)
+    print(F"current logger = {log_info[1]}")
+    return lg.getLogger(log_info[0])
+
+
+def finish_logging(log_key:str, custom_log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
+    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
+    run_log_name = LOGGERS.get(log_key)[1]
+    final_log_name = custom_log_name + '_' + timestamp + sfx
+    print(F"finish logging to {run_log_name}")
+    lg.shutdown() # need this to ensure get a new log file with next call of get_logger() to same log key
+    shutil.move(run_log_name, final_log_name)
+    print(F"move {run_log_name} to {final_log_name}")
+
 
 ZERO:Decimal = Decimal(0)
 
@@ -210,17 +215,18 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4) -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None) -> str:
     """
     print json data to a file -- add a timestamp to get a unique file name each run
     :param     fname: file name
     :param        ts: timestamp to use
     :param json_data: JSON compatible struct
     :param      indt: indentation amount
+    :param       lgr: if desired
     :return: file name
     """
     out_file = 'json/' + fname + '_' + ts + '.json'
-    print(F"dump to json file: {out_file}")
+    if lgr: lgr.info(F"dump to json file: {out_file}")
     with open(out_file, 'w') as jfp:
         json.dump(json_data, jfp, indent=indt)
     return out_file
