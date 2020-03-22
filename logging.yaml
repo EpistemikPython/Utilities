@@ -19,79 +19,79 @@ handlers:
         filename: GnucashLog
         filters: [special]
         delay: yes
-    file_monarch:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: CopyMonarchLog
-        filters: [special]
-        delay: yes
-    file_revexp:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: RevExpLog
-        filters: [special]
-        delay: yes
-    file_balance:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: BalanceLog
-        filters: [special]
-        delay: yes
-    file_assets:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: AssetsLog
-        filters: [special]
-        delay: yes
-    file_updates:
-        class: logging.FileHandler
-        level: DEBUG
-        formatter: complex
-        filename: UpdateGoogleSheet
-        filters: [special]
-        delay: yes
-    file_reports:
+    file_monarch_ui:
         class: logging.FileHandler
         level: DEBUG
         formatter: complex
         filename: GncTxsFromMonarch
         filters: [special]
         delay: yes
+    file_monarch_copy:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: CopyMonarchLog
+        filters: [special]
+        delay: yes
+    file_google_budget_ui:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: UpdateGoogleSheet
+        filters: [special]
+        delay: yes
+    file_revexp_update:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: RevExpLog
+        filters: [special]
+        delay: yes
+    file_balance_update:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: BalanceLog
+        filters: [special]
+        delay: yes
+    file_assets_update:
+        class: logging.FileHandler
+        level: DEBUG
+        formatter: complex
+        filename: AssetsLog
+        filters: [special]
+        delay: yes
 filters:
     special:
         (): python_utilities.SpecialFilter
 loggers:
-    gnucash:
+    basic:
         level: DEBUG
         handlers: [console,fileh]
         propagate: no
-    updates:
+    UpdateBudgetQtrly:
         level: DEBUG
-        handlers: [console,file_updates]
+        handlers: [console,file_google_budget_ui]
         propagate: no
-    reports:
+    MonarchGnucashServices:
         level: DEBUG
-        handlers: [console,file_reports]
+        handlers: [console,file_monarch_ui]
         propagate: no
-    monarch:
+    parseMonarchCopyRep:
         level: DEBUG
-        handlers: [console,file_monarch]
+        handlers: [console,file_monarch_copy]
         propagate: no
-    revexp:
+    updateRevExps:
         level: DEBUG
-        handlers: [console,file_revexp]
+        handlers: [console,file_revexp_update]
         propagate: no
-    balance:
+    updateBalance:
         level: DEBUG
-        handlers: [console,file_balance]
+        handlers: [console,file_balance_update]
         propagate: no
-    assets:
+    updateAssets:
         level: DEBUG
-        handlers: [console,file_assets]
+        handlers: [console,file_assets_update]
         propagate: no
 root:
     level: INFO

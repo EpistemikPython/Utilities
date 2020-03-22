@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-03-21'
+__updated__ = '2020-03-22'
 
 import inspect
 import json
@@ -38,43 +38,40 @@ print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
 YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
-
-LOGGERS = { # MUST agree with settings in YAML_CONFIG_FILE
-    'startUI.py'             : ['gnucash', 'GnucashLog'] ,
-    'UpdateBudgetQtrly'      : ['updates', 'UpdateGoogleSheet'] ,
-    'MonarchGnucashServices' : ['reports', 'GncTxsFromMonarch'] ,
-    'updateRevExps.py'       : ['revexp' , 'RevExpLog'] ,
-    'updateAssets.py'        : ['assets' , 'AssetsLog'] ,
-    'updateBalance.py'       : ['balance', 'BalanceLog'] ,
-    'parseMonarchCopyRep.py' : ['monarch', 'CopyMonarchLog']
-}
 STD_GNC_OUT_SUFFIX = '.gncout'
-
 saved_log_info = list()
 
 
 class SpecialFilter(lg.Filter):
+    """SAVE A COPY OF LOG MESSAGES"""
     def filter(self, record):
-        # SAVE A COPY OF LOG MESSAGES
         saved_log_info.append(str(record.msg) + '\n')
         return True
 
 
 # load the logging config
 with open(YAML_CONFIG_FILE, 'r') as fp:
-    log_cfg = yaml.safe_load(fp.read())
-lgconf.dictConfig(log_cfg)
+    LOG_CONFIG = yaml.safe_load(fp.read())
+lgconf.dictConfig(LOG_CONFIG)
+print(json.dumps(LOG_CONFIG, indent=4))
 
 
-def get_logger(log_key:str):
-    log_info = LOGGERS.get(log_key)
-    print(F"current logger = {log_info[1]}")
-    return lg.getLogger(log_info[0])
+def get_logger_filename(logger_name:str) -> str:
+    handler = LOG_CONFIG.get('loggers').get(logger_name).get('handlers')[1]
+    print(F"handler = {handler}")
+    return LOG_CONFIG.get('handlers').get(handler).get('filename')
 
 
-def finish_logging(log_key:str, custom_log_name:str, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
+def get_logger(logger_name:str) -> lg.Logger:
+    print(F"requested logger = {logger_name}")
+    return lg.getLogger(logger_name)
+
+
+def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
-    run_log_name = LOGGERS.get(log_key)[1]
+    run_log_name = get_logger_filename(logger_name)
+    if not custom_log_name:
+        custom_log_name = run_log_name
     final_log_name = custom_log_name + '_' + timestamp + sfx
     print(F"finish logging to {run_log_name}")
     lg.shutdown() # need this to ensure get a new log file with next call of get_logger() to same log key
@@ -91,8 +88,17 @@ YEAR_MONTHS:int = 12
 ONE_DAY:timedelta = timedelta(days=1)
 
 
-def get_current_time():
+def get_current_time() -> str:
     return dt.now().strftime(CELL_DATE_STR + 'T' + FXN_TIME_STR)
+
+
+def get_base_filename(p_name:str, div1:str='/', div2:str='.') -> str:
+    spl1 = p_name.split(div1)
+    if spl1 and isinstance(spl1, list):
+        spl2 = spl1[-1].split(div2)
+        if spl2 and isinstance(spl2, list):
+            return spl2[0]
+    return ''
 
 
 def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
