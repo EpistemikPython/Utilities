@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-04-03'
+__updated__ = '2020-04-04'
 
 import inspect
 import json
@@ -102,20 +102,20 @@ def get_base_filename(p_name:str, div1:str='/', div2:str='.') -> str:
     return ''
 
 
-def year_span(target_year:int, base_year:int, base_year_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
+def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
     """
     calculate which row to update, factoring in the header row placed every so-many years
-    :param    target_year: year to calculate for
-    :param      base_year: starting year
-    :param base_year_span: number of rows between equivalent positions in adjacent years, not including header rows
-    :param       hdr_span: number of rows between header rows
-    :param         logger
+    :param target_year: year to calculate for
+    :param   base_year: starting year in the sheet
+    :param     yr_span: number of rows between equivalent positions in adjacent years, not including header rows
+    :param    hdr_span: number of rows between header rows
+    :param logger
     """
-    if logger: logger.debug(get_current_time())
+    if logger: logger.debug(F"year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
-    return int(year_diff * base_year_span) + hdr_adjustment
+    return int(year_diff * yr_span) + hdr_adjustment
 
 
 def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
@@ -125,7 +125,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     :param   base_year: earliest possible year
     :param      logger
     """
-    if logger: logger.debug(get_current_time())
+    if logger: logger.debug(F"year = {target_year}; base year = {base_year}")
 
     if not target_year.isnumeric():
         msg = "Input MUST be the String representation of a Year, e.g. '2013'!"
@@ -151,7 +151,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     :param   p_qtr: to convert
     :param  logger
     """
-    if logger: logger.debug(get_current_time())
+    if logger: logger.debug(F"quarter to convert = {p_qtr}")
     msg = "Input MUST be a String of 0..4!"
 
     if not p_qtr.isnumeric():
@@ -177,7 +177,7 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
     :param start_month
     :param      logger
     """
-    if logger: logger.debug(get_current_time())
+    if logger: logger.debug(F"start year = {start_year}; start month = {start_month}")
 
     # add number of months for a Quarter
     next_month = start_month + QTR_MONTHS
@@ -197,7 +197,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     :param start_month
     :param      logger
     """
-    if logger: logger.info(get_current_time())
+    if logger: logger.info(F"start year = {start_year}; start month = {start_month}")
 
     end_year, end_month = next_quarter_start(start_year, start_month)
 
@@ -206,8 +206,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     return date(end_year, end_month, 1) - ONE_DAY
 
 
-def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
-                                logger:lg.Logger=None) -> (date, date):
+def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger=None) -> (date, date):
     """
     get the start and end dates for the quarters in the submitted range
     :param  start_year
@@ -215,7 +214,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
     :param    num_qtrs: number of quarters to calculate
     :param      logger
     """
-    if logger: logger.debug(get_current_time())
+    if logger: logger.debug(F"start year = {start_year}; start month = {start_month}; num quarters = {num_qtrs}")
 
     for i in range(num_qtrs):
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
