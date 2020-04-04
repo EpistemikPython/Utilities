@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-03-22'
+__updated__ = '2020-04-03'
 
 import inspect
 import json
@@ -19,8 +19,8 @@ import shutil
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 import logging as lg
-import yaml
 import logging.config as lgconf
+import yaml
 
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
@@ -53,11 +53,12 @@ class SpecialFilter(lg.Filter):
 with open(YAML_CONFIG_FILE, 'r') as fp:
     LOG_CONFIG = yaml.safe_load(fp.read())
 lgconf.dictConfig(LOG_CONFIG)
-print(json.dumps(LOG_CONFIG, indent=4))
+# print(json.dumps(LOG_CONFIG, indent=4))
 
 
-def get_logger_filename(logger_name:str) -> str:
-    handler = LOG_CONFIG.get('loggers').get(logger_name).get('handlers')[1]
+def get_logger_filename(logger_name:str, posn:int=1) -> str:
+    print(F"requested logger name = {logger_name}")
+    handler = LOG_CONFIG.get('loggers').get(logger_name).get('handlers')[posn]
     print(F"handler = {handler}")
     return LOG_CONFIG.get('handlers').get(handler).get('filename')
 
@@ -88,8 +89,8 @@ YEAR_MONTHS:int = 12
 ONE_DAY:timedelta = timedelta(days=1)
 
 
-def get_current_time() -> str:
-    return dt.now().strftime(CELL_DATE_STR + 'T' + FXN_TIME_STR)
+def get_current_time(time_indicator:str='T') -> str:
+    return dt.now().strftime(CELL_DATE_STR + time_indicator + FXN_TIME_STR)
 
 
 def get_base_filename(p_name:str, div1:str='/', div2:str='.') -> str:
@@ -224,12 +225,12 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int,
 def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None) -> str:
     """
     print json data to a file -- add a timestamp to get a unique file name each run
-    :param     fname: file name
-    :param        ts: timestamp to use
+    :param     fname: base file name to use
     :param json_data: JSON compatible struct
+    :param        ts: timestamp to use
     :param      indt: indentation amount
     :param       lgr: if desired
-    :return: file name
+    :return: saved file name
     """
     out_file = 'json/' + fname + '_' + ts + '.json'
     if lgr: lgr.info(F"dump to json file: {out_file}")

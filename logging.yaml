@@ -69,10 +69,6 @@ loggers:
         level: DEBUG
         handlers: [console,fileh]
         propagate: no
-    UpdateBudgetQtrly:
-        level: DEBUG
-        handlers: [console,file_google_budget_ui]
-        propagate: no
     MonarchGnucashServices:
         level: DEBUG
         handlers: [console,file_monarch_ui]
@@ -80,6 +76,10 @@ loggers:
     parseMonarchCopyRep:
         level: DEBUG
         handlers: [console,file_monarch_copy]
+        propagate: no
+    UpdateBudgetUI:
+        level: DEBUG
+        handlers: [console,file_google_budget_ui]
         propagate: no
     updateRevExps:
         level: DEBUG
