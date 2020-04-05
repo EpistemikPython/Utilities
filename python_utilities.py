@@ -111,7 +111,7 @@ def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:
     :param    hdr_span: number of rows between header rows
     :param logger
     """
-    if logger: logger.debug(F"year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
+    if logger: logger.debug(F"target year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
@@ -129,16 +129,16 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
 
     if not target_year.isnumeric():
         msg = "Input MUST be the String representation of a Year, e.g. '2013'!"
-        c_frame = inspect.currentframe().f_back
         if logger:
+            c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
         raise msg
 
     int_year = int(float(target_year))
     if int_year > now_dt.year or int_year < base_year:
         msg = F"Input MUST be the String representation of a Year between {now_dt.year} and {base_year}!"
-        c_frame = inspect.currentframe().f_back
         if logger:
+            c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
         raise msg
 
