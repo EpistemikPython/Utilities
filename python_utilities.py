@@ -75,7 +75,7 @@ def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file
         custom_log_name = run_log_name
     final_log_name = custom_log_name + '_' + timestamp + sfx
     print(F"finish logging to {run_log_name}")
-    lg.shutdown() # need this to ensure get a new log file with next call of get_logger() to same log key
+    lg.shutdown() # need this to ensure get a NEW log file with next call of get_logger() to SAME logger
     shutil.move(run_log_name, final_log_name)
     print(F"move {run_log_name} to {final_log_name}")
 
@@ -132,7 +132,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
-        raise msg
+        raise Exception(msg)
 
     int_year = int(float(target_year))
     if int_year > now_dt.year or int_year < base_year:
@@ -140,7 +140,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
-        raise msg
+        raise Exception(msg)
 
     return int_year
 
@@ -155,17 +155,17 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     msg = "Input MUST be a String of 0..4!"
 
     if not p_qtr.isnumeric():
-        c_frame = inspect.currentframe().f_back
         if logger:
+            c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
-        raise msg
+        raise Exception(msg)
 
     int_qtr = int(float(p_qtr))
     if int_qtr > 4 or int_qtr < 0:
-        c_frame = inspect.currentframe().f_back
         if logger:
+            c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
-        raise msg
+        raise Exception(msg)
 
     return int_qtr
 
