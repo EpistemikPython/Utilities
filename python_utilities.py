@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-04-04'
+__updated__ = '2020-04-09'
 
 import inspect
 import json
@@ -136,7 +136,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
 
     int_year = int(float(target_year))
     if int_year > now_dt.year or int_year < base_year:
-        msg = F"Input MUST be the String representation of a Year between {now_dt.year} and {base_year}!"
+        msg = F"Input MUST be a Year between {now_dt.year} and {base_year}!"
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
