@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6.9'
 __created__ = '2019-04-07'
-__updated__ = '2020-04-09'
+__updated__ = '2020-04-13'
 
 import inspect
 import json
@@ -27,13 +27,13 @@ CELL_TIME_STR:str = "%H:%M:%S"
 CELL_DATE_STR:str = "%Y-%m-%d"
 FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%Hh%M"
-FILE_DATE_FORMAT  = FILE_DATE_STR + FILE_TIME_STR
-RUN_DATE_FORMAT   = CELL_DATE_STR + '_' + FXN_TIME_STR
+FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
+RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
 now_dt:dt  = dt.now()
-run_ts:str = now_dt.strftime(RUN_DATE_FORMAT)
+run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
 print(F"{__file__}: run_ts = {run_ts}")
-file_ts:str = now_dt.strftime(FILE_DATE_FORMAT)
+file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
@@ -89,8 +89,8 @@ YEAR_MONTHS:int = 12
 ONE_DAY:timedelta = timedelta(days=1)
 
 
-def get_current_time(time_indicator:str='T') -> str:
-    return dt.now().strftime(CELL_DATE_STR + time_indicator + FXN_TIME_STR)
+def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
+    return dt.now().strftime(format_indicator)
 
 
 def get_base_filename(p_name:str, div1:str='/', div2:str='.') -> str:
@@ -111,7 +111,8 @@ def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:
     :param    hdr_span: number of rows between header rows
     :param logger
     """
-    if logger: logger.debug(F"target year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
+    if logger:
+        logger.debug(F"target year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
 
     year_diff = int(target_year - base_year)
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
