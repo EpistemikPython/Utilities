@@ -9,9 +9,9 @@
 #
 __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
-__python_version__ = '3.6.9'
+__python_version__ = '3.6+'
 __created__ = '2019-04-07'
-__updated__ = '2020-04-13'
+__updated__ = '2020-04-15'
 
 import inspect
 import json
@@ -21,6 +21,7 @@ from datetime import date, timedelta, datetime as dt
 import logging as lg
 import logging.config as lgconf
 import yaml
+import os.path as osp
 
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
@@ -37,8 +38,8 @@ file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
-YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities/logging.yaml'
-STD_GNC_OUT_SUFFIX = '.gncout'
+YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities' + osp.sep + 'logging' + osp.extsep + 'yaml'
+STD_GNC_OUT_SUFFIX = osp.extsep + 'gncout'
 saved_log_info = list()
 
 
@@ -93,7 +94,7 @@ def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
 
 
-def get_base_filename(p_name:str, div1:str='/', div2:str='.') -> str:
+def get_base_filename(p_name:str, div1:str=osp.sep, div2:str=osp.extsep) -> str:
     spl1 = p_name.split(div1)
     if spl1 and isinstance(spl1, list):
         spl2 = spl1[-1].split(div2)
@@ -182,7 +183,6 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
 
     # add number of months for a Quarter
     next_month = start_month + QTR_MONTHS
-
     # use integer division to find out if the new end month is in a different year,
     # what year it is, and what the end month number should be changed to.
     next_year = start_year + ((next_month - 1) // YEAR_MONTHS)
@@ -201,7 +201,6 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     if logger: logger.info(F"start year = {start_year}; start month = {start_month}")
 
     end_year, end_month = next_quarter_start(start_year, start_month)
-
     # last step, the end date is one day back from the start of the next period
     # so we get a period end like 2010-03-31 instead of 2010-04-01
     return date(end_year, end_month, 1) - ONE_DAY
@@ -232,8 +231,17 @@ def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg
     :param       lgr: if desired
     :return: saved file name
     """
-    out_file = 'json/' + fname + '_' + ts + '.json'
-    if lgr: lgr.info(F"dump to json file: {out_file}")
-    with open(out_file, 'w') as jfp:
-        json.dump(json_data, jfp, indent=indt)
-    return out_file
+    save_subdir = ''
+    json_label = 'json'
+    try:
+        if osp.exists(json_label) and osp.isdir(json_label):
+            save_subdir = json_label + osp.sep
+        outfile_name = save_subdir + fname + '_' + ts + osp.extsep + json_label
+        if lgr: lgr.info(F"dump to {json_label.upper()} file: {outfile_name}")
+        with open(outfile_name, 'w') as jfp:
+            json.dump(json_data, jfp, indent=indt)
+        return outfile_name
+    except Exception as sje:
+        msg = repr(sje)
+        if lgr: lgr.error(msg)
+        return msg
