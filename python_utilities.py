@@ -6,12 +6,12 @@
 # some code from account_analysis.py by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
 #
 # Copyright (c) 2020 Mark Sattolo <epistemik@gmail.com>
-#
+
 __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6+'
 __created__ = '2019-04-07'
-__updated__ = '2020-04-15'
+__updated__ = '2020-06-10'
 
 import inspect
 import json
@@ -37,9 +37,9 @@ print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
-BASE_PYTHON_FOLDER = '/newdata/dev/git/Python/'
-YAML_CONFIG_FILE   = BASE_PYTHON_FOLDER + 'Utilities' + osp.sep + 'logging' + osp.extsep + 'yaml'
-STD_GNC_OUT_SUFFIX = osp.extsep + 'gncout'
+BASE_PYTHON_FOLDER = '/newdata/dev/git/Python'
+PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, 'Utilities')
+YAML_CONFIG_FILE   = osp.join(PYTHON_UTIL_FOLDER, 'logging' + osp.extsep + 'yaml')
 saved_log_info = list()
 
 
@@ -69,14 +69,13 @@ def get_logger(logger_name:str) -> lg.Logger:
     return lg.getLogger(logger_name)
 
 
-def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str=STD_GNC_OUT_SUFFIX):
+def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str='log'):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
     run_log_name = get_logger_filename(logger_name)
-    if not custom_log_name:
-        custom_log_name = run_log_name
-    final_log_name = custom_log_name + '_' + timestamp + sfx
+    custom_name = custom_log_name if custom_log_name else run_log_name
+    final_log_name = custom_name + '_' + timestamp + osp.extsep + sfx
     print(F"finish logging to {run_log_name}")
-    lg.shutdown() # need this to ensure get a NEW log file with next call of get_logger() to SAME logger
+    lg.shutdown() # need this to ensure get a NEW log file with next call of get_logger() from SAME file
     shutil.move(run_log_name, final_log_name)
     print(F"move {run_log_name} to {final_log_name}")
 
@@ -94,10 +93,10 @@ def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
 
 
-def get_base_filename(p_name:str, div1:str=osp.sep, div2:str=osp.extsep) -> str:
-    spl1 = p_name.split(div1)
+def get_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
+    spl1 = p_name.split(file_div)
     if spl1 and isinstance(spl1, list):
-        spl2 = spl1[-1].split(div2)
+        spl2 = spl1[-1].split(sfx_div)
         if spl2 and isinstance(spl2, list):
             return spl2[0]
     return ''
@@ -105,7 +104,7 @@ def get_base_filename(p_name:str, div1:str=osp.sep, div2:str=osp.extsep) -> str:
 
 def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
     """
-    calculate which row to update, factoring in the header row placed every so-many years
+    calculate which row to update, factoring in the header row placed every $hdr_span years
     :param target_year: year to calculate for
     :param   base_year: starting year in the sheet
     :param     yr_span: number of rows between equivalent positions in adjacent years, not including header rows
@@ -120,7 +119,7 @@ def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:
     return int(year_diff * yr_span) + hdr_adjustment
 
 
-def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
+def get_int_year(target_year:str, base_year:int=2000, logger:lg.Logger=None) -> int:
     """
     convert the string representation of a year to an int
     :param target_year: to convert
@@ -129,8 +128,8 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     """
     if logger: logger.debug(F"year = {target_year}; base year = {base_year}")
 
-    if not target_year.isnumeric():
-        msg = "Input MUST be the String representation of a Year, e.g. '2013'!"
+    if not( target_year.isnumeric() and len(target_year) == 4 ):
+        msg = "Input MUST be the String representation of a RECENT year, e.g. '2013'!"
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
@@ -156,7 +155,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     if logger: logger.debug(F"quarter to convert = {p_qtr}")
     msg = "Input MUST be a String of 0..4!"
 
-    if not p_qtr.isnumeric():
+    if not( p_qtr.isnumeric() and len(p_qtr) == 1 ):
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
@@ -221,22 +220,20 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None) -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str='json') -> str:
     """
     print json data to a file -- add a timestamp to get a unique file name each run
-    :param     fname: base file name to use
-    :param json_data: JSON compatible struct
-    :param        ts: timestamp to use
-    :param      indt: indentation amount
-    :param       lgr: if desired
+    :param      fname: base file name to use
+    :param  json_data: JSON compatible struct
+    :param         ts: timestamp to use
+    :param       indt: indentation amount
+    :param        lgr: if desired
+    :param json_label: file extension and/or folder
     :return: saved file name
     """
-    save_subdir = ''
-    json_label = 'json'
     try:
-        if osp.exists(json_label) and osp.isdir(json_label):
-            save_subdir = json_label + osp.sep
-        outfile_name = save_subdir + fname + '_' + ts + osp.extsep + json_label
+        save_subdir = json_label if( osp.isdir(json_label) ) else '.'
+        outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + json_label)
         if lgr: lgr.info(F"dump to {json_label.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
             json.dump(json_data, jfp, indent=indt)
