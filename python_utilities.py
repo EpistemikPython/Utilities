@@ -11,7 +11,7 @@ __author__         = 'Mark Sattolo'
 __author_email__   = 'epistemik@gmail.com'
 __python_version__ = '3.6+'
 __created__ = '2019-04-07'
-__updated__ = '2020-06-10'
+__updated__ = '2020-07-01'
 
 import inspect
 import json
@@ -119,7 +119,7 @@ def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:
     return int(year_diff * yr_span) + hdr_adjustment
 
 
-def get_int_year(target_year:str, base_year:int=2000, logger:lg.Logger=None) -> int:
+def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     """
     convert the string representation of a year to an int
     :param target_year: to convert
