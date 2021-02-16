@@ -3,15 +3,15 @@
 #
 # python_utilities.py -- useful classes, functions & constants
 #
-# some code from account_analysis.py by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
+# some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
 #
-# Copyright (c) 2020 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2019-21 Mark Sattolo <epistemik@gmail.com>
 
-__author__         = 'Mark Sattolo'
-__author_email__   = 'epistemik@gmail.com'
-__python_version__ = '3.6+'
-__created__ = '2019-04-07'
-__updated__ = '2020-07-01'
+__author__         = "Mark Sattolo"
+__author_email__   = "epistemik@gmail.com"
+__python_version__ = "3.6+"
+__created__ = "2019-04-07"
+__updated__ = "2021-02-16"
 
 import inspect
 import json
@@ -37,9 +37,9 @@ print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
-BASE_PYTHON_FOLDER = '/newdata/dev/git/Python'
-PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, 'Utilities')
-YAML_CONFIG_FILE   = osp.join(PYTHON_UTIL_FOLDER, 'logging' + osp.extsep + 'yaml')
+BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
+PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "Utilities")
+YAML_CONFIG_FILE   = osp.join(PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml")
 saved_log_info = list()
 
 
@@ -59,9 +59,9 @@ lgconf.dictConfig(LOG_CONFIG)
 
 def get_logger_filename(logger_name:str, posn:int=1) -> str:
     print(F"requested logger name = {logger_name}")
-    handler = LOG_CONFIG.get('loggers').get(logger_name).get('handlers')[posn]
+    handler = LOG_CONFIG.get("loggers").get(logger_name).get("handlers")[posn]
     print(F"handler = {handler}")
-    return LOG_CONFIG.get('handlers').get(handler).get('filename')
+    return LOG_CONFIG.get("handlers").get(handler).get("filename")
 
 
 def get_logger(logger_name:str) -> lg.Logger:
@@ -69,7 +69,7 @@ def get_logger(logger_name:str) -> lg.Logger:
     return lg.getLogger(logger_name)
 
 
-def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str='log'):
+def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str="log"):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
     run_log_name = get_logger_filename(logger_name)
     custom_name = custom_log_name if custom_log_name else run_log_name
@@ -99,7 +99,7 @@ def get_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) 
         spl2 = spl1[-1].split(sfx_div)
         if spl2 and isinstance(spl2, list):
             return spl2[0]
-    return ''
+    return ""
 
 
 def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
@@ -220,7 +220,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str='json') -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str="json") -> str:
     """
     print json data to a file -- add a timestamp to get a unique file name each run
     :param      fname: base file name to use
