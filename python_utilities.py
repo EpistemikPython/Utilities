@@ -23,6 +23,7 @@ import logging.config as lgconf
 import yaml
 import os.path as osp
 
+JSON = "json"
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
 CELL_DATE_STR:str = "%Y-%m-%d"
@@ -220,7 +221,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str="json") -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str=JSON) -> str:
     """
     print json data to a file -- add a timestamp to get a unique file name each run
     :param      fname: base file name to use
