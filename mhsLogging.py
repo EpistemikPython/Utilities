@@ -8,7 +8,7 @@
 __author__       = "Mark Sattolo"
 __author_email__ = "epistemik@gmail.com"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-03"
+__updated__ = "2021-05-08"
 
 import logging
 import os.path as osp
@@ -32,6 +32,42 @@ COMPLEX_FORMAT:str = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(li
 FILE_LEVEL    = logging.DEBUG
 CONSOLE_LEVEL = logging.WARNING
 
+DEFAULT_LOG_LEVEL = "WARNING"
+QUIET_LOG_LEVEL = "CRITICAL"
+
+def get_basename(filename:str) ->str:
+    _, fname = osp.split(filename)
+    basename, _ = osp.splitext(fname)
+    return basename
+
+def get_logger(name:str, level:str, file_time:str=file_ts) -> logging.Logger:
+    _, fname = osp.split(name)
+    basename, _ = osp.splitext(fname)
+
+    lgr = logging.getLogger(basename)
+    # default for logger: all messages DEBUG or higher
+    lgr.setLevel(logging.DEBUG)
+
+    fh = logging.FileHandler("logs/" + basename + '_' + file_time + ".log")
+    # default for file handler: all messages DEBUG or higher
+    fh.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler() # console handler
+    # log to console at the level requested on the command line
+    try:
+        ch.setLevel(level)
+    except ValueError:
+        ch.setLevel(DEFAULT_LOG_LEVEL)
+
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter("%(levelname)s - %(asctime)s | %(funcName)s > %(message)s")
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter)
+
+    # add handlers to the logger
+    lgr.addHandler(ch)
+    lgr.addHandler(fh)
+    return lgr
 
 class MhsLogger:
     def __init__(self, name:str):
