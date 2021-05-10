@@ -63,7 +63,7 @@ handlers:
         delay: yes
 filters:
     special:
-        (): python_utilities.SpecialFilter
+        (): mhsLogging.SpecialFilter
 loggers:
     basic:
         level: DEBUG

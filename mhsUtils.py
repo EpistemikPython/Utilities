@@ -1,9 +1,7 @@
 ##############################################################################################################################
 # coding=utf-8
 #
-# python_utilities.py -- useful classes, functions & constants
-#
-# some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
+# mhsUtils.py -- useful classes, functions & constants
 #
 # Copyright (c) 2019-21 Mark Sattolo <epistemik@gmail.com>
 
@@ -11,16 +9,13 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-02-16"
+__updated__ = "2021-05-10"
 
 import inspect
 import json
-import shutil
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
 import logging as lg
-import logging.config as lgconf
-import yaml
 import os.path as osp
 
 JSON = "json"
@@ -28,7 +23,7 @@ FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_TIME_STR:str = "%H:%M:%S"
 CELL_DATE_STR:str = "%Y-%m-%d"
 FILE_DATE_STR:str = "D%Y-%m-%d"
-FILE_TIME_STR:str = "T%Hh%M"
+FILE_TIME_STR:str = "T%H-%M-%S"
 FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
 RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
@@ -38,55 +33,11 @@ print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
-BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
-PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "Utilities")
-YAML_CONFIG_FILE   = osp.join(PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml")
-saved_log_info = list()
-
-
-class SpecialFilter(lg.Filter):
-    """SAVE A COPY OF LOG MESSAGES"""
-    def filter(self, record):
-        saved_log_info.append(str(record.msg) + '\n')
-        return True
-
-
-# load the logging config
-with open(YAML_CONFIG_FILE, 'r') as fp:
-    LOG_CONFIG = yaml.safe_load(fp.read())
-lgconf.dictConfig(LOG_CONFIG)
-# print(json.dumps(LOG_CONFIG, indent=4))
-
-
-def get_logger_filename(logger_name:str, posn:int=1) -> str:
-    print(F"requested logger name = {logger_name}")
-    handler = LOG_CONFIG.get("loggers").get(logger_name).get("handlers")[posn]
-    print(F"handler = {handler}")
-    return LOG_CONFIG.get("handlers").get(handler).get("filename")
-
-
-def get_logger(logger_name:str) -> lg.Logger:
-    print(F"requested logger = {logger_name}")
-    return lg.getLogger(logger_name)
-
-
-def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str="log"):
-    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
-    run_log_name = get_logger_filename(logger_name)
-    custom_name = custom_log_name if custom_log_name else run_log_name
-    final_log_name = custom_name + '_' + timestamp + osp.extsep + sfx
-    print(F"finish logging to {run_log_name}")
-    lg.shutdown() # need this to ensure get a NEW log file with next call of get_logger() from SAME file
-    shutil.move(run_log_name, final_log_name)
-    print(F"move {run_log_name} to {final_log_name}")
-
-
-ZERO:Decimal = Decimal(0)
-
 # number of months
 QTR_MONTHS:int = 3
 YEAR_MONTHS:int = 12
 
+ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
 
 
@@ -94,7 +45,13 @@ def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
 
 
-def get_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
+def get_base_filename(filename:str) -> str:
+    _, fname = osp.split(filename)
+    basename, _ = osp.splitext(fname)
+    return basename
+
+
+def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
     spl1 = p_name.split(file_div)
     if spl1 and isinstance(spl1, list):
         spl2 = spl1[-1].split(sfx_div)

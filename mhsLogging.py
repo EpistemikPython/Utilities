@@ -5,12 +5,16 @@
 #
 # Copyright (c) 2021 Mark Sattolo <epistemik@gmail.com>
 
-__author__       = "Mark Sattolo"
-__author_email__ = "epistemik@gmail.com"
+__author__         = "Mark Sattolo"
+__author_email__   = "epistemik@gmail.com"
+__python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-08"
+__updated__ = "2021-05-10"
 
 import logging
+import logging.config as lgconf
+import yaml
+import shutil
 import os.path as osp
 from datetime import datetime as dt
 
@@ -22,26 +26,35 @@ FILE_TIME_STR:str = "T%H-%M-%S"
 FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
 RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
-now_dt:dt  = dt.now()
-run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
+now_dt:dt   = dt.now()
+run_ts:str  = now_dt.strftime(RUN_DATETIME_FORMAT)
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
+
+BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
+PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
+YAML_CONFIG_FILE   = osp.join(PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml")
 
 SIMPLE_FORMAT:str  = "%(levelname)-8s - %(filename)s[%(lineno)s]: %(message)s"
 COMPLEX_FORMAT:str = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
 
-FILE_LEVEL    = logging.DEBUG
-CONSOLE_LEVEL = logging.WARNING
+DEFAULT_FILE_LEVEL    = logging.DEBUG
+DEFAULT_CONSOLE_LEVEL = logging.WARNING
 
-DEFAULT_LOG_LEVEL = "WARNING"
-QUIET_LOG_LEVEL = "CRITICAL"
+DEFAULT_LOG_LEVEL = logging.INFO
+QUIET_LOG_LEVEL   = logging.CRITICAL
 
-def get_basename(filename:str) ->str:
+saved_log_info = list()
+
+
+class SpecialFilter(logging.Filter):
+    """SAVE A COPY OF LOG MESSAGES"""
+    def filter(self, record):
+        saved_log_info.append(str(record.msg) + '\n')
+        return True
+
+
+def get_simple_logger(filename:str, level:str, file_time:str=file_ts) -> logging.Logger:
     _, fname = osp.split(filename)
-    basename, _ = osp.splitext(fname)
-    return basename
-
-def get_logger(name:str, level:str, file_time:str=file_ts) -> logging.Logger:
-    _, fname = osp.split(name)
     basename, _ = osp.splitext(fname)
 
     lgr = logging.getLogger(basename)
@@ -69,32 +82,78 @@ def get_logger(name:str, level:str, file_time:str=file_ts) -> logging.Logger:
     lgr.addHandler(fh)
     return lgr
 
+
 class MhsLogger:
-    def __init__(self, name:str):
+    saved_log_info = list()
+
+    def __init__(self, basename:str, con_level=DEFAULT_CONSOLE_LEVEL, file_level=DEFAULT_FILE_LEVEL,
+                 folder="logs", suffix="log"):
         # set up logging to file
-        logging.basicConfig( level = FILE_LEVEL,
-                             format = COMPLEX_FORMAT,
-                             datefmt = RUN_DATETIME_FORMAT,
-                             filename = F"logs/{name}_{file_ts}.log",
-                             filemode = 'w' )
+        # logging.basicConfig( level = FILE_LEVEL, format = COMPLEX_FORMAT, datefmt = RUN_DATETIME_FORMAT,
+        #                      filename = F"logs/{name}_{file_ts}.log", filemode = 'w' )
 
         # define a Handler which writes messages to sys.stderr
-        console = logging.StreamHandler()
-        console.setLevel(CONSOLE_LEVEL)
+        # console = logging.StreamHandler()
+        # console.setLevel(CONSOLE_LEVEL)
 
         # set a format which is simpler for console use
-        formatter = logging.Formatter(SIMPLE_FORMAT)
+        # formatter = logging.Formatter(SIMPLE_FORMAT)
 
         # tell the handler to use this format
-        console.setFormatter(formatter)
+        # console.setFormatter(formatter)
 
         # add the handler to the root logger
-        logging.getLogger('').addHandler(console)
+        # logging.getLogger('').addHandler(console)
+        # self.mhs_logger = logging.getLogger("mhs")
 
-        self.mhs_logger = logging.getLogger("mhs")
+        # self.saved_log_info = list()
+
+        class MhsLogFilter(logging.Filter):
+            """Save a copy of log messages."""
+            def filter(self, record):
+                MhsLogger.saved_log_info.append( str(record.msg) + '\n' )
+                return True
+
+        self.mhs_logger = logging.getLogger(basename)
+        # default for logger: all messages DEBUG or higher
+        self.mhs_logger.setLevel(logging.DEBUG)
+
+        self.con_hdlr  = logging.StreamHandler()  # console handler
+        self.file_hdlr = logging.FileHandler(folder + osp.sep + basename + '_' + file_ts + osp.extsep + suffix)
+
+        try:
+            self.con_hdlr.setLevel(con_level)
+            self.file_hdlr.addFilter( MhsLogFilter() )
+            self.file_hdlr.setLevel(file_level)
+        except ValueError:
+            self.con_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
+            self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
+
+        # create formatters and add to the handlers
+        con_formatter  = logging.Formatter(SIMPLE_FORMAT)
+        file_formatter = logging.Formatter(COMPLEX_FORMAT)
+        self.con_hdlr.setFormatter(con_formatter)
+        self.file_hdlr.setFormatter(file_formatter)
+
+        # add handlers to the logger
+        self.mhs_logger.addHandler(self.con_hdlr)
+        self.mhs_logger.addHandler(self.file_hdlr)
 
     def get_logger(self):
         return self.mhs_logger
+
+    def append(self, msg:str):
+        self.saved_log_info.append( msg + '\n' )
+
+    def get_saved_info(self):
+        return self.saved_log_info
+
+    def send_saved_info(self):
+        self.log_list(self.saved_log_info)
+
+    def log_list(self, items:list, newl=''):
+        for item in items:
+            self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
     def show(self, msg:str, level=logging.INFO, endl='\n'):
         """ print and log """
@@ -106,11 +165,34 @@ class MhsLogger:
         if self.mhs_logger:
             self.mhs_logger.debug(msg)
 
+# END class MhsLogger
 
-def get_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
-    spl1 = p_name.split(file_div)
-    if spl1 and isinstance(spl1, list):
-        spl2 = spl1[-1].split(sfx_div)
-        if spl2 and isinstance(spl2, list):
-            return spl2[0]
-    return ""
+
+# load the logging config
+with open(YAML_CONFIG_FILE, 'r') as fp:
+    LOG_CONFIG = yaml.safe_load(fp.read())
+# print(json.dumps(LOG_CONFIG, indent=4))
+
+
+def get_special_logger(logger_name:str) -> logging.Logger:
+    lgconf.dictConfig(LOG_CONFIG)
+    print(F"requested logger = {logger_name}")
+    return logging.getLogger(logger_name)
+
+
+def get_logger_filename(logger_name:str, posn:int=1) -> str:
+    print(F"requested logger name = {logger_name}")
+    handler = LOG_CONFIG.get("loggers").get(logger_name).get("handlers")[posn]
+    print(F"handler = {handler}")
+    return LOG_CONFIG.get("handlers").get(handler).get("filename")
+
+
+def finish_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str="log"):
+    """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
+    run_log_name = get_logger_filename(logger_name)
+    custom_name = custom_log_name if custom_log_name else run_log_name
+    final_log_name = custom_name + '_' + timestamp + osp.extsep + sfx
+    print(F"finish logging to {run_log_name}")
+    logging.shutdown() # need this to ensure get a NEW log file with next call of get_logger() from SAME file
+    shutil.move(run_log_name, final_log_name)
+    print(F"move {run_log_name} to {final_log_name}")
