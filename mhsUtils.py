@@ -33,6 +33,9 @@ print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 print(F"{__file__}: file_ts = {file_ts}")
 
+BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
+PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
+
 # number of months
 QTR_MONTHS:int = 3
 YEAR_MONTHS:int = 12
