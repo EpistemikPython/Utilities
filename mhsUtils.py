@@ -54,6 +54,17 @@ def get_base_filename(filename:str) -> str:
     return basename
 
 
+def get_base_filetype(filename:str) -> str:
+    _, fname = osp.split(filename)
+    _, ftype = osp.splitext(fname)
+    return ftype
+
+
+def get_base_fileparts(filename:str) -> (str,str):
+    _, fname = osp.split(filename)
+    return osp.splitext(fname)
+
+
 def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
     spl1 = p_name.split(file_div)
     if spl1 and isinstance(spl1, list):
