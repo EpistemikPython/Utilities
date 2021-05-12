@@ -1,7 +1,7 @@
 ##############################################################################################################################
 # coding=utf-8
 #
-# mhsUtils.py -- useful classes, functions & constants
+# mhsUtils.py -- useful constants & functions
 #
 # Copyright (c) 2019-21 Mark Sattolo <epistemik@gmail.com>
 
@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-05-11"
+__updated__ = "2021-05-12"
 
 import inspect
 import json
@@ -20,8 +20,8 @@ import os.path as osp
 
 JSON = "json"
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
-CELL_TIME_STR:str = "%H:%M:%S"
 CELL_DATE_STR:str = "%Y-%m-%d"
+CELL_TIME_STR:str = "%H:%M:%S"
 FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%H-%M-%S"
 FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
@@ -29,9 +29,7 @@ RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
 now_dt:dt  = dt.now()
 run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
-# print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
-# print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
 PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
