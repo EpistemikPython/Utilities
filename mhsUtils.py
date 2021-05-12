@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-05-10"
+__updated__ = "2021-05-11"
 
 import inspect
 import json
@@ -29,9 +29,9 @@ RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
 now_dt:dt  = dt.now()
 run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
-print(F"{__file__}: run_ts = {run_ts}")
+# print(F"{__file__}: run_ts = {run_ts}")
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
-print(F"{__file__}: file_ts = {file_ts}")
+# print(F"{__file__}: file_ts = {file_ts}")
 
 BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
 PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
