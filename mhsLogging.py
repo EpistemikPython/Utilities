@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-12"
+__updated__ = "2021-05-17"
 
 import logging
 import logging.config
@@ -18,8 +18,9 @@ import shutil
 import os.path as osp
 from mhsUtils import file_ts, PYTHON_UTIL_FOLDER, get_base_filename
 
-SIMPLE_FORMAT:str  = "%(levelname)-8s - %(filename)s[%(lineno)s]: %(message)s"
-COMPLEX_FORMAT:str = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
+CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
+FILE_FORMAT    = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
+SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s > %(message)s"
 
 DEFAULT_LOG_LEVEL = logging.INFO
 QUIET_LOG_LEVEL   = logging.CRITICAL
@@ -55,8 +56,8 @@ class MhsLogger:
             self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
 
         # create formatters and add to the handlers
-        con_formatter  = logging.Formatter(SIMPLE_FORMAT)
-        file_formatter = logging.Formatter(COMPLEX_FORMAT)
+        con_formatter  = logging.Formatter(CONSOLE_FORMAT)
+        file_formatter = logging.Formatter(FILE_FORMAT)
         self.con_hdlr.setFormatter(con_formatter)
         self.file_hdlr.setFormatter(file_formatter)
 
@@ -96,7 +97,7 @@ class MhsLogger:
 #
 #  Simple logger
 ########################################
-def get_simple_logger(filename:str, level:str=DEFAULT_LOG_LEVEL, file_time:str=file_ts) -> logging.Logger:
+def get_simple_logger(filename:str, level=DEFAULT_LOG_LEVEL, file_time:str=file_ts) -> logging.Logger:
     basename = get_base_filename(filename)
     lgr = logging.getLogger(basename)
     # default for logger: all messages DEBUG or higher
@@ -114,7 +115,7 @@ def get_simple_logger(filename:str, level:str=DEFAULT_LOG_LEVEL, file_time:str=f
         ch.setLevel(DEFAULT_LOG_LEVEL)
 
     # create formatter and add it to the handlers
-    formatter = logging.Formatter("%(levelname)s - %(asctime)s | %(funcName)s > %(message)s")
+    formatter = logging.Formatter(SIMPLE_FORMAT)
     ch.setFormatter(formatter)
     fh.setFormatter(formatter)
 
