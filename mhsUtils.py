@@ -52,10 +52,15 @@ def get_base_filename(filename:str) -> str:
     return basename
 
 
-def get_base_filetype(filename:str) -> str:
+def get_filetype(filename:str) -> str:
     _, fname = osp.split(filename)
     _, ftype = osp.splitext(fname)
     return ftype
+
+
+def get_filepath(filename:str) -> str:
+    fpath, _ = osp.split(filename)
+    return fpath
 
 
 def get_base_fileparts(filename:str) -> (str,str):
