@@ -34,7 +34,7 @@ class MhsLogger:
     class MhsLogFilter(logging.Filter):
         """Save a copy of log messages."""
         def filter(self, record):
-            MhsLogger.saved_log_info.append(str(record.msg) + '\n')
+            MhsLogger.saved_log_info.append( str(record.msg) + '\n' )
             return True
 
     def __init__( self, basename:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
@@ -45,7 +45,7 @@ class MhsLogger:
         self.mhs_logger.setLevel(logging.DEBUG)
 
         self.con_hdlr  = logging.StreamHandler()  # console handler
-        self.file_hdlr = logging.FileHandler(folder + osp.sep + basename + '_' + file_ts + osp.extsep + suffix)
+        self.file_hdlr = logging.FileHandler( osp.join(folder, basename + '_' + file_ts + osp.extsep + suffix) )
 
         try:
             self.con_hdlr.setLevel(con_level)
@@ -103,7 +103,7 @@ def get_simple_logger(filename:str, level=DEFAULT_LOG_LEVEL, file_time:str=file_
     # default for logger: all messages DEBUG or higher
     lgr.setLevel(logging.DEBUG)
 
-    fh = logging.FileHandler("logs/" + basename + '_' + file_time + ".log")
+    fh = logging.FileHandler( osp.join("logs", basename + '_' + file_time + osp.extsep + "log") )
     # default for file handler: all messages DEBUG or higher
     fh.setLevel(logging.DEBUG)
 
@@ -128,7 +128,7 @@ def get_simple_logger(filename:str, level=DEFAULT_LOG_LEVEL, file_time:str=file_
 #
 #  Special logger
 ########################################
-YAML_CONFIG_FILE:str = osp.join(PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml")
+YAML_CONFIG_FILE:str = osp.join( PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml" )
 saved_log_info = list()
 log_config = None
 
