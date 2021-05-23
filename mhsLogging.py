@@ -9,14 +9,13 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-17"
+__updated__ = "2021-05-23"
 
 import logging
 import logging.config
 import yaml
 import shutil
-import os.path as osp
-from mhsUtils import file_ts, PYTHON_UTIL_FOLDER, get_base_filename
+from mhsUtils import osp, file_ts, PYTHON_UTIL_FOLDER, get_base_filename
 
 CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
 FILE_FORMAT    = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
