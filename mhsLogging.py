@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-23"
+__updated__ = "2021-05-25"
 
 import logging
 import logging.config
@@ -36,15 +36,15 @@ class MhsLogger:
             MhsLogger.saved_log_info.append( str(record.msg) + '\n' )
             return True
 
-    def __init__( self, basename:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
-                  folder:str = "logs", suffix:str = "log" ):
-
+    def __init__(self, logger_name:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
+                 folder:str = "logs", suffix:str = "log"):
+        basename = get_base_filename(logger_name)
         self.mhs_logger = logging.getLogger(basename)
         # default for logger: all messages DEBUG or higher
         self.mhs_logger.setLevel(logging.DEBUG)
 
-        self.con_hdlr  = logging.StreamHandler()  # console handler
-        self.file_hdlr = logging.FileHandler( osp.join(folder, basename + '_' + file_ts + osp.extsep + suffix) )
+        self.con_hdlr  = logging.StreamHandler() # console handler
+        self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_ts + osp.extsep + suffix))
 
         try:
             self.con_hdlr.setLevel(con_level)
@@ -80,15 +80,11 @@ class MhsLogger:
         for item in items:
             self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
-    def show(self, msg:str, level=logging.INFO, endl='\n'):
+    def show(self, msg:str, level=DEFAULT_LOG_LEVEL, endl='\n'):
         """ print and log """
         print(msg, end = endl)
         if self.mhs_logger:
             self.mhs_logger.log(level, msg)
-
-    def debug(self, msg:str):
-        if self.mhs_logger:
-            self.mhs_logger.debug(msg)
 
 # END class MhsLogger
 
@@ -96,15 +92,15 @@ class MhsLogger:
 #
 #  Simple logger
 ########################################
-def get_simple_logger(filename:str, level=DEFAULT_LOG_LEVEL, file_time:str=file_ts) -> logging.Logger:
-    basename = get_base_filename(filename)
+def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL, file_time:str = file_ts) -> logging.Logger:
+    basename = get_base_filename(logger_name)
     lgr = logging.getLogger(basename)
     # default for logger: all messages DEBUG or higher
     lgr.setLevel(logging.DEBUG)
 
     fh = logging.FileHandler( osp.join("logs", basename + '_' + file_time + osp.extsep + "log") )
     # default for file handler: all messages DEBUG or higher
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(DEFAULT_FILE_LEVEL)
 
     ch = logging.StreamHandler() # console handler
     # log to console at the level requested on the command line
