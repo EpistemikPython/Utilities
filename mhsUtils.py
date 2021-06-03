@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-05-12"
+__updated__ = "2021-06-03"
 
 import inspect
 import json
@@ -41,32 +41,24 @@ YEAR_MONTHS:int = 12
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
 
-
 def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
-
-
-def get_base_filename(filename:str) -> str:
-    _, fname = osp.split(filename)
-    basename, _ = osp.splitext(fname)
-    return basename
-
-
-def get_filetype(filename:str) -> str:
-    _, fname = osp.split(filename)
-    _, ftype = osp.splitext(fname)
-    return ftype
-
-
-def get_filepath(filename:str) -> str:
-    fpath, _ = osp.split(filename)
-    return fpath
-
 
 def get_base_fileparts(filename:str) -> (str,str):
     _, fname = osp.split(filename)
     return osp.splitext(fname)
 
+def get_base_filename(filename:str) -> str:
+    basename, _ = get_base_fileparts(filename)
+    return basename
+
+def get_filetype(filename:str) -> str:
+    _, ftype = get_base_fileparts(filename)
+    return ftype
+
+def get_filepath(filename:str) -> str:
+    fpath, _ = osp.split(filename)
+    return fpath
 
 def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
     spl1 = p_name.split(file_div)
@@ -76,30 +68,30 @@ def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.e
             return spl2[0]
     return ""
 
-
 def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
     """
-    calculate which row to update, factoring in the header row placed every $hdr_span years
-    :param target_year: year to calculate for
+    Calculate which row to update, factoring in the header row placed every $hdr_span years.
+    :param   target_year: year to calculate for
     :param   base_year: starting year in the sheet
-    :param     yr_span: number of rows between equivalent positions in adjacent years, not including header rows
-    :param    hdr_span: number of rows between header rows
-    :param logger
+    :param   yr_span: number of rows between equivalent positions in adjacent years, not including header rows
+    :param   hdr_span: number of rows between header rows
+    :param   logger
+    :return  span as int
     """
     if logger:
         logger.debug(F"target year = {target_year}; base year = {base_year}; year span = {yr_span}; header span = {hdr_span}")
 
-    year_diff = int(target_year - base_year)
-    hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // int(hdr_span))
-    return int(year_diff * yr_span) + hdr_adjustment
-
+    year_diff = target_year - base_year
+    hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // hdr_span)
+    return (year_diff * yr_span) + hdr_adjustment
 
 def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
     """
-    convert the string representation of a year to an int
-    :param target_year: to convert
+    Convert the string representation of a year to an int.
+    :param   target_year: to convert
     :param   base_year: earliest possible year
-    :param      logger
+    :param   logger
+    :return  year as int
     """
     if logger: logger.debug(F"year = {target_year}; base year = {base_year}")
 
@@ -110,7 +102,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
             logger.error(msg, c_frame)
         raise Exception(msg)
 
-    int_year = int(float(target_year))
+    int_year = int( float(target_year) )
     if int_year > now_dt.year or int_year < base_year:
         msg = F"Input MUST be a Year between {now_dt.year} and {base_year}!"
         if logger:
@@ -120,23 +112,23 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
 
     return int_year
 
-
 def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
     """
-    convert the string representation of a quarter to an int
-    :param   p_qtr: to convert
-    :param  logger
+    Convert the string representation of a quarter to an int.
+    :param   p_qtr: string to convert
+    :param   logger
+    :return  quarter as int
     """
     if logger: logger.debug(F"quarter to convert = {p_qtr}")
     msg = "Input MUST be a String of 0..4!"
 
-    if not( p_qtr.isnumeric() and len(p_qtr) == 1 ):
+    if not p_qtr.isnumeric() or len(p_qtr) != 1:
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
         raise Exception(msg)
 
-    int_qtr = int(float(p_qtr))
+    int_qtr = int( float(p_qtr) )
     if int_qtr > 4 or int_qtr < 0:
         if logger:
             c_frame = inspect.currentframe().f_back
@@ -145,13 +137,13 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
 
     return int_qtr
 
-
 def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -> (int, int):
     """
-    get the year and month that starts the FOLLOWING quarter
-    :param  start_year
-    :param start_month
-    :param      logger
+    Get the year and month that starts the FOLLOWING quarter.
+    :param   start_year
+    :param   start_month
+    :param   logger
+    :return  year as int, month as int
     """
     if logger: logger.debug(F"start year = {start_year}; start month = {start_month}")
 
@@ -159,18 +151,18 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
     next_month = start_month + QTR_MONTHS
     # use integer division to find out if the new end month is in a different year,
     # what year it is, and what the end month number should be changed to.
-    next_year = start_year + ((next_month - 1) // YEAR_MONTHS)
-    next_month = ((next_month - 1) % YEAR_MONTHS) + 1
+    next_year = start_year + ( (next_month - 1) // YEAR_MONTHS )
+    next_month = ( (next_month - 1) % YEAR_MONTHS ) + 1
 
     return next_year, next_month
 
-
 def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) -> date:
     """
-    get the date that ends the CURRENT quarter
-    :param  start_year
-    :param start_month
-    :param      logger
+    Get the date that ends the CURRENT quarter.
+    :param   start_year
+    :param   start_month
+    :param   logger
+    :return  end date
     """
     if logger: logger.info(F"start year = {start_year}; start month = {start_month}")
 
@@ -179,14 +171,14 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     # so we get a period end like 2010-03-31 instead of 2010-04-01
     return date(end_year, end_month, 1) - ONE_DAY
 
-
 def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger=None) -> (date, date):
     """
-    get the start and end dates for the quarters in the submitted range
-    :param  start_year
-    :param start_month
-    :param    num_qtrs: number of quarters to calculate
-    :param      logger
+    Get the start and end dates for the quarters in the submitted range.
+    :param   start_year
+    :param   start_month
+    :param   num_qtrs: number of quarters to calculate
+    :param   logger
+    :return  start date, end date
     """
     if logger: logger.debug(F"start year = {start_year}; start month = {start_month}; num quarters = {num_qtrs}")
 
@@ -194,17 +186,16 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
-
 def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str=JSON) -> str:
     """
-    print json data to a file -- add a timestamp to get a unique file name each run
-    :param      fname: base file name to use
-    :param  json_data: JSON compatible struct
-    :param         ts: timestamp to use
-    :param       indt: indentation amount
-    :param        lgr: if desired
-    :param json_label: file extension and/or folder
-    :return: saved file name
+    Print json data to a file -- add a timestamp to get a unique file name each run.
+    :param   fname: base file name to use
+    :param   json_data: JSON compatible struct
+    :param   ts: timestamp to use
+    :param   indt: indentation amount
+    :param   lgr: if desired
+    :param   json_label: file extension and/or folder
+    :return  saved file name
     """
     try:
         save_subdir = json_label if( osp.isdir(json_label) ) else '.'
