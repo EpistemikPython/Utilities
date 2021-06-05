@@ -3,13 +3,15 @@
 #
 # mhsUtils.py -- useful constants & functions
 #
+# some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
+#
 # Copyright (c) 2019-21 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-06-03"
+__updated__ = "2021-06-05"
 
 import inspect
 import json
@@ -18,7 +20,6 @@ from datetime import date, timedelta, datetime as dt
 import logging as lg
 import os.path as osp
 
-JSON = "json"
 FXN_TIME_STR:str  = "%H:%M:%S:%f"
 CELL_DATE_STR:str = "%Y-%m-%d"
 CELL_TIME_STR:str = "%H:%M:%S"
@@ -31,12 +32,15 @@ now_dt:dt  = dt.now()
 run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
 file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 
+UTF8_ENCODING = "utf-8"
+JSON_LABEL    = "json"
 BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
 PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
 
-# number of months
-QTR_MONTHS:int = 3
-YEAR_MONTHS:int = 12
+MAX_QUARTER = 4
+MIN_QUARTER = 0  # Zero = "All four quarters"
+QTR_MONTHS  = 3
+YEAR_MONTHS = 12
 
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
@@ -129,7 +133,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
         raise Exception(msg)
 
     int_qtr = int( float(p_qtr) )
-    if int_qtr > 4 or int_qtr < 0:
+    if int_qtr > MAX_QUARTER or int_qtr < MIN_QUARTER:
         if logger:
             c_frame = inspect.currentframe().f_back
             logger.error(msg, c_frame)
@@ -139,7 +143,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
 
 def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -> (int, int):
     """
-    Get the year and month that starts the FOLLOWING quarter.
+    Get the year and month that start the FOLLOWING quarter.
     :param   start_year
     :param   start_month
     :param   logger
@@ -167,13 +171,12 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     if logger: logger.info(F"start year = {start_year}; start month = {start_month}")
 
     end_year, end_month = next_quarter_start(start_year, start_month)
-    # last step, the end date is one day back from the start of the next period
-    # so we get a period end like 2010-03-31 instead of 2010-04-01
+    # end date is one day back from the start of the next period
     return date(end_year, end_month, 1) - ONE_DAY
 
 def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger=None) -> (date, date):
     """
-    Get the start and end dates for the quarters in the submitted range.
+    Generate the start and end dates for the quarters in the submitted range.
     :param   start_year
     :param   start_month
     :param   num_qtrs: number of quarters to calculate
@@ -186,7 +189,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str=JSON) -> str:
+def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str=JSON_LABEL) -> str:
     """
     Print json data to a file -- add a timestamp to get a unique file name each run.
     :param   fname: base file name to use
