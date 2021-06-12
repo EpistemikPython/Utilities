@@ -18,7 +18,7 @@ import shutil
 from mhsUtils import osp, file_ts, PYTHON_UTIL_FOLDER, get_base_filename
 
 CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
-FILE_FORMAT    = "%(levelname)-8s | %(filename)-16s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
+FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
 SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s > %(message)s"
 
 DEFAULT_LOG_LEVEL = logging.INFO
