@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-06-05"
+__updated__ = "2021-07-06"
 
 import inspect
 import json
@@ -52,6 +52,14 @@ def get_base_fileparts(filename:str) -> (str,str):
     _, fname = osp.split(filename)
     return osp.splitext(fname)
 
+def get_filepath(filename:str) -> str:
+    fpath, _ = osp.split(filename)
+    return fpath
+
+def get_filename(filename:str) -> str:
+    _, fname = osp.split(filename)
+    return fname
+
 def get_base_filename(filename:str) -> str:
     basename, _ = get_base_fileparts(filename)
     return basename
@@ -59,10 +67,6 @@ def get_base_filename(filename:str) -> str:
 def get_filetype(filename:str) -> str:
     _, ftype = get_base_fileparts(filename)
     return ftype
-
-def get_filepath(filename:str) -> str:
-    fpath, _ = osp.split(filename)
-    return fpath
 
 def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
     spl1 = p_name.split(file_div)
