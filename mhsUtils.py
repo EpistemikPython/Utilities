@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-07-06"
+__updated__ = "2021-07-09"
 
 import inspect
 import json
@@ -45,7 +45,7 @@ YEAR_MONTHS = 12
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
 
-def get_current_time(format_indicator:str=RUN_DATETIME_FORMAT) -> str:
+def get_current_time(format_indicator:str = RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
 
 def get_base_fileparts(filename:str) -> (str,str):
@@ -68,7 +68,7 @@ def get_filetype(filename:str) -> str:
     _, ftype = get_base_fileparts(filename)
     return ftype
 
-def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.extsep) -> str:
+def get_custom_base_filename(p_name:str, file_div:str = osp.sep, sfx_div:str = osp.extsep) -> str:
     spl1 = p_name.split(file_div)
     if spl1 and isinstance(spl1, list):
         spl2 = spl1[-1].split(sfx_div)
@@ -76,7 +76,7 @@ def get_custom_base_filename(p_name:str, file_div:str=osp.sep, sfx_div:str=osp.e
             return spl2[0]
     return ""
 
-def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger=None) -> int:
+def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger = None) -> int:
     """
     Calculate which row to update, factoring in the header row placed every $hdr_span years.
     :param   target_year: year to calculate for
@@ -93,7 +93,7 @@ def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:
     hdr_adjustment = 0 if hdr_span <= 0 else (year_diff // hdr_span)
     return (year_diff * yr_span) + hdr_adjustment
 
-def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
+def get_int_year(target_year:str, base_year:int, logger:lg.Logger = None) -> int:
     """
     Convert the string representation of a year to an int.
     :param   target_year: to convert
@@ -120,7 +120,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger=None) -> int:
 
     return int_year
 
-def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
+def get_int_quarter(p_qtr:str, logger:lg.Logger = None) -> int:
     """
     Convert the string representation of a quarter to an int.
     :param   p_qtr: string to convert
@@ -145,7 +145,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger=None) -> int:
 
     return int_qtr
 
-def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -> (int, int):
+def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger = None) -> (int, int):
     """
     Get the year and month that start the FOLLOWING quarter.
     :param   start_year
@@ -164,7 +164,7 @@ def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger=None) -
 
     return next_year, next_month
 
-def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) -> date:
+def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger = None) -> date:
     """
     Get the date that ends the CURRENT quarter.
     :param   start_year
@@ -178,7 +178,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger=None) 
     # end date is one day back from the start of the next period
     return date(end_year, end_month, 1) - ONE_DAY
 
-def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger=None) -> (date, date):
+def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger = None) -> (date, date):
     """
     Generate the start and end dates for the quarters in the submitted range.
     :param   start_year
@@ -193,7 +193,8 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
-def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg.Logger=None, json_label:str=JSON_LABEL) -> str:
+def save_to_json( fname:str, json_data:object, ts:str = file_ts, indt:int = 4, lgr:lg.Logger = None,
+                  json_label:str = JSON_LABEL ) -> str:
     """
     Print json data to a file -- add a timestamp to get a unique file name each run.
     :param   fname: base file name to use
@@ -209,9 +210,9 @@ def save_to_json(fname:str, json_data:object, ts:str=file_ts, indt:int=4, lgr:lg
         outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + json_label)
         if lgr: lgr.info(F"dump to {json_label.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
-            json.dump(json_data, jfp, indent=indt)
+            json.dump(json_data, jfp, indent = indt)
         return outfile_name
-    except Exception as sje:
-        msg = repr(sje)
+    except Exception as sjex:
+        msg = repr(sjex)
         if lgr: lgr.error(msg)
         return msg

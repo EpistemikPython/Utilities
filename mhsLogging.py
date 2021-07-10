@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-05-25"
+__updated__ = "2021-07-09"
 
 import logging
 import logging.config
@@ -76,12 +76,12 @@ class MhsLogger:
     def send_saved_info(self):
         self.log_list(self.saved_log_info)
 
-    def log_list(self, items:list, newl=''):
+    def log_list(self, items:list, newl = ''):
         for item in items:
             self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
-    def show(self, msg:str, level=DEFAULT_LOG_LEVEL, endl='\n'):
-        """ print and log """
+    def show(self, msg:str, level = DEFAULT_LOG_LEVEL, endl = '\n'):
+        """print and log."""
         print(msg, end = endl)
         if self.mhs_logger:
             self.mhs_logger.log(level, msg)
@@ -146,7 +146,7 @@ def get_special_logger(logger_name:str) -> logging.Logger:
 
 
 # noinspection PyUnresolvedReferences
-def get_spec_lgr_filename(logger_name:str, posn:int=1) -> str:
+def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
     print(F"requested logger name = {logger_name}")
     if log_config:
         handler = log_config.get("loggers").get(logger_name).get("handlers")[posn]
@@ -156,7 +156,7 @@ def get_spec_lgr_filename(logger_name:str, posn:int=1) -> str:
     return ""
 
 
-def finish_special_logging(logger_name:str, custom_log_name:str=None, timestamp:str=file_ts, sfx:str="log"):
+def finish_special_logging(logger_name:str, custom_log_name:str = None, timestamp:str = file_ts, sfx:str = "log"):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
     run_log_name = get_spec_lgr_filename(logger_name)
     custom_name = custom_log_name if custom_log_name else run_log_name
