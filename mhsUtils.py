@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-07-09"
+__updated__ = "2021-07-26"
 
 import inspect
 import json
@@ -34,7 +34,10 @@ file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
 
 UTF8_ENCODING = "utf-8"
 JSON_LABEL    = "json"
-BASE_PYTHON_FOLDER = "/newdata/dev/git/Python"
+HOME_FOLDER   = "/home/marksa"
+BASE_DEV_HOME = osp.join(HOME_FOLDER, "dev")
+BASE_GIT_HOME = osp.join(HOME_FOLDER, "git")
+BASE_PYTHON_FOLDER = osp.join(BASE_GIT_HOME, "Python")
 PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
 
 MAX_QUARTER = 4
