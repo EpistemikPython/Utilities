@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-07-09"
+__updated__ = "2021-07-31"
 
 import logging
 import logging.config
@@ -18,7 +18,7 @@ import shutil
 from mhsUtils import osp, file_ts, PYTHON_UTIL_FOLDER, get_base_filename
 
 CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
-FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s l.%(lineno)-4s > %(message)s"
+FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s < %(lineno)-4s > %(message)s"
 SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s > %(message)s"
 
 DEFAULT_LOG_LEVEL = logging.INFO
@@ -28,8 +28,9 @@ DEFAULT_CONSOLE_LEVEL = logging.WARNING
 
 
 class MhsLogger:
-    saved_log_info = list()
+    saved_log_info = []
 
+    # internal class
     class MhsLogFilter(logging.Filter):
         """Save a copy of log messages."""
         def filter(self, record):
@@ -63,6 +64,8 @@ class MhsLogger:
         # add handlers to the logger
         self.mhs_logger.addHandler(self.con_hdlr)
         self.mhs_logger.addHandler(self.file_hdlr)
+
+        self.mhs_logger.info(F"FINISHED {self.__class__.__name__} init.")
 
     def get_logger(self):
         return self.mhs_logger
