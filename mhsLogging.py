@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-07-31"
+__updated__ = "2021-08-16"
 
 import logging
 import logging.config
@@ -25,6 +25,7 @@ DEFAULT_LOG_LEVEL = logging.INFO
 QUIET_LOG_LEVEL   = logging.CRITICAL
 DEFAULT_FILE_LEVEL    = logging.DEBUG
 DEFAULT_CONSOLE_LEVEL = logging.WARNING
+DEFAULT_LOG_FOLDER = "logs"
 
 
 class MhsLogger:
@@ -38,7 +39,7 @@ class MhsLogger:
             return True
 
     def __init__(self, logger_name:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
-                 folder:str = "logs", suffix:str = "log"):
+                 folder:str = DEFAULT_LOG_FOLDER, suffix:str = "log"):
         basename = get_base_filename(logger_name)
         self.mhs_logger = logging.getLogger(basename)
         # default for logger: all messages DEBUG or higher
