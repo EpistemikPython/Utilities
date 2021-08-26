@@ -15,5 +15,6 @@
 *.bin
 *.exe
 *.x
+*.json
 # find <dir/>* -type l >> .gitignore
 
