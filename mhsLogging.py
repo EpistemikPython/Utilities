@@ -9,13 +9,13 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-08-16"
+__updated__ = "2021-10-03"
 
 import logging
 import logging.config
 import yaml
 import shutil
-from mhsUtils import osp, file_ts, PYTHON_UTIL_FOLDER, get_base_filename
+from mhsUtils import osp, PYTHON_UTIL_FOLDER, get_base_filename, dt, FILE_DATETIME_FORMAT
 
 CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
 FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s < %(lineno)-4s > %(message)s"
@@ -39,14 +39,14 @@ class MhsLogger:
             return True
 
     def __init__(self, logger_name:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
-                 folder:str = DEFAULT_LOG_FOLDER, suffix:str = "log"):
+                 folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT), suffix:str = "log"):
         basename = get_base_filename(logger_name)
         self.mhs_logger = logging.getLogger(basename)
         # default for logger: all messages DEBUG or higher
         self.mhs_logger.setLevel(logging.DEBUG)
 
         self.con_hdlr  = logging.StreamHandler() # console handler
-        self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_ts + osp.extsep + suffix))
+        self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_time + osp.extsep + suffix))
 
         try:
             self.con_hdlr.setLevel(con_level)
@@ -96,7 +96,8 @@ class MhsLogger:
 #
 #  Simple logger
 ########################################
-def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL, file_time:str = file_ts) -> logging.Logger:
+def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL,
+                      file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT)) -> logging.Logger:
     basename = get_base_filename(logger_name)
     lgr = logging.getLogger(basename)
     # default for logger: all messages DEBUG or higher
@@ -160,7 +161,8 @@ def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
     return ""
 
 
-def finish_special_logging(logger_name:str, custom_log_name:str = None, timestamp:str = file_ts, sfx:str = "log"):
+def finish_special_logging(logger_name:str, custom_log_name:str = None,
+                           timestamp:str = dt.now().strftime(FILE_DATETIME_FORMAT), sfx:str = "log"):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
     run_log_name = get_spec_lgr_filename(logger_name)
     custom_name = custom_log_name if custom_log_name else run_log_name
