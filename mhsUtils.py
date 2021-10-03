@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-08-08"
+__updated__ = "2021-10-03"
 
 import inspect
 import json
@@ -28,10 +28,7 @@ FILE_TIME_STR:str = "T%H-%M-%S"
 FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
 RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
-now_dt:dt  = dt.now()
-run_ts:str = now_dt.strftime(RUN_DATETIME_FORMAT)
-file_ts:str = now_dt.strftime(FILE_DATETIME_FORMAT)
-
+now_dt:dt = dt.now()
 UTF8_ENCODING = "utf-8"
 JSON_LABEL    = "json"
 
@@ -197,7 +194,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
-def save_to_json( fname:str, json_data:object, ts:str = file_ts, indt:int = 4, lgr:lg.Logger = None,
+def save_to_json( fname:str, json_data:object, ts:str = now_dt.strftime(FILE_DATETIME_FORMAT), indt:int=4, lgr:lg.Logger = None,
                   json_label:str = JSON_LABEL ) -> str:
     """
     Print json data to a file -- add a timestamp to get a unique file name each run.
