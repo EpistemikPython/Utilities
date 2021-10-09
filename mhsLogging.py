@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-10-03"
+__updated__ = "2021-10-04"
 
 import logging
 import logging.config
@@ -25,6 +25,7 @@ DEFAULT_LOG_LEVEL = logging.INFO
 QUIET_LOG_LEVEL   = logging.CRITICAL
 DEFAULT_FILE_LEVEL    = logging.DEBUG
 DEFAULT_CONSOLE_LEVEL = logging.WARNING
+DEFAULT_LOG_SUFFIX = "log"
 DEFAULT_LOG_FOLDER = "logs"
 
 
@@ -39,7 +40,8 @@ class MhsLogger:
             return True
 
     def __init__(self, logger_name:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
-                 folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT), suffix:str = "log"):
+                 folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT),
+                 suffix:str = DEFAULT_LOG_SUFFIX):
         basename = get_base_filename(logger_name)
         self.mhs_logger = logging.getLogger(basename)
         # default for logger: all messages DEBUG or higher
@@ -103,7 +105,7 @@ def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL,
     # default for logger: all messages DEBUG or higher
     lgr.setLevel(logging.DEBUG)
 
-    fh = logging.FileHandler( osp.join("logs", basename + '_' + file_time + osp.extsep + "log") )
+    fh = logging.FileHandler( osp.join(DEFAULT_LOG_FOLDER, basename + '_' + file_time + osp.extsep + DEFAULT_LOG_SUFFIX) )
     # default for file handler: all messages DEBUG or higher
     fh.setLevel(DEFAULT_FILE_LEVEL)
 
@@ -129,14 +131,14 @@ def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL,
 #  Special logger
 ########################################
 YAML_CONFIG_FILE:str = osp.join( PYTHON_UTIL_FOLDER, "logging" + osp.extsep + "yaml" )
-saved_log_info = list()
+special_log_info = []
 log_config = None
 
 
 class SpecialFilter(logging.Filter):
     """SAVE A COPY OF LOG MESSAGES"""
     def filter(self, record):
-        saved_log_info.append(str(record.msg) + '\n')
+        special_log_info.append(str(record.msg) + '\n')
         return True
 
 
@@ -162,7 +164,7 @@ def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
 
 
 def finish_special_logging(logger_name:str, custom_log_name:str = None,
-                           timestamp:str = dt.now().strftime(FILE_DATETIME_FORMAT), sfx:str = "log"):
+                           timestamp:str = dt.now().strftime(FILE_DATETIME_FORMAT), sfx:str = DEFAULT_LOG_SUFFIX):
     """copy the standard log file to a customized named & time-stamped file to save each execution separately"""
     run_log_name = get_spec_lgr_filename(logger_name)
     custom_name = custom_log_name if custom_log_name else run_log_name
