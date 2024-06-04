@@ -5,13 +5,13 @@
 #
 # some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
 #
-# Copyright (c) 2019-21 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2024 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2021-10-08"
+__updated__ = "2024-06-03"
 
 import inspect
 import json
@@ -213,9 +213,8 @@ def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DAT
         if logger:
             logger.info(F"dump to {json_label.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
-            json.dump(json_data, jfp, indent = indt)
+            json.dump(json_data, jfp, indent=indt)
         return outfile_name
     except Exception as sjex:
-        msg = repr(sjex)
-        if logger: logger.error(msg)
-        return msg
+        if logger: logger.error(repr(sjex))
+        raise sjex
