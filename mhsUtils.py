@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-06-03"
+__updated__ = "2024-06-07"
 
 import inspect
 import json
@@ -45,6 +45,9 @@ YEAR_MONTHS = 12
 
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
+
+def get_current_date(format_indicator:str = CELL_DATE_STR) -> str:
+    return dt.now().strftime(format_indicator)
 
 def get_current_time(format_indicator:str = RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
@@ -104,7 +107,7 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger = None) -> int
     if logger:
         logger.debug(F"year = {target_year}; base year = {base_year}")
 
-    if not( target_year.isnumeric() and len(target_year) == 4 ):
+    if not ( target_year.isnumeric() and len(target_year) == 4 ):
         msg = "Input MUST be the String representation of a RECENT year, e.g. '2013'!"
         if logger:
             c_frame = inspect.currentframe().f_back
@@ -196,7 +199,7 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         start_year, start_month = next_quarter_start(start_year, start_month)
 
 def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DATETIME_FORMAT),
-                 indt:int = 4, logger:lg.Logger = None, json_label:str = JSON_LABEL) -> str:
+                 indt:int = 4, logger:lg.Logger = None, folder_name:str = JSON_LABEL) -> str:
     """
     Print json data to a file -- add a timestamp to get a unique file name each run.
     :param   fname: base file name to use
@@ -204,14 +207,14 @@ def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DAT
     :param   ts: timestamp to use
     :param   indt: indentation amount
     :param   logger: optional
-    :param   json_label: file extension and/or folder
+    :param   folder_name: location to save file
     :return  saved file name
     """
     try:
-        save_subdir = json_label if( osp.isdir(json_label) ) else '.'
-        outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + json_label)
+        save_subdir = folder_name if ( osp.isdir(folder_name) ) else '.'
+        outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + JSON_LABEL)
         if logger:
-            logger.info(F"dump to {json_label.upper()} file: {outfile_name}")
+            logger.info(F"dump to {JSON_LABEL.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
             json.dump(json_data, jfp, indent=indt)
         return outfile_name
