@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-06-07"
+__updated__ = "2024-07-13"
 
 import inspect
 import json
@@ -219,5 +219,6 @@ def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DAT
             json.dump(json_data, jfp, indent=indt)
         return outfile_name
     except Exception as sjex:
-        if logger: logger.error(repr(sjex))
+        if logger:
+            logger.exception(sjex)
         raise sjex
