@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-07-13"
+__updated__ = "2024-08-05"
 
 import inspect
 import json
@@ -28,13 +28,14 @@ FILE_TIME_STR:str = "T%H-%M-%S"
 FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
 RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
-now_dt:dt = dt.now()
+now_dt = dt.now()
 UTF8_ENCODING = "utf-8"
 JSON_LABEL    = "json"
 
-HOME_FOLDER  =  osp.sep + "home" + osp.sep + "marksa"
+# my file structure
+HOME_FOLDER = osp.sep + "home" + osp.sep + "marksa"
 BASE_DEV_FOLDER = osp.join(HOME_FOLDER, "dev")
-BASE_GIT_FOLDER = osp.join(HOME_FOLDER, "git")
+BASE_GIT_FOLDER = osp.join(BASE_DEV_FOLDER, "git")
 BASE_PYTHON_FOLDER = osp.join(BASE_GIT_FOLDER, "Python")
 PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
 
