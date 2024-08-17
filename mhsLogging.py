@@ -3,13 +3,13 @@
 #
 # mhsLogging.py -- custom logging
 #
-# Copyright (c) 2021 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2024 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2021-10-04"
+__updated__ = "2024-08-16"
 
 import logging
 import logging.config
@@ -43,12 +43,16 @@ class MhsLogger:
                  folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT),
                  suffix:str = DEFAULT_LOG_SUFFIX):
         basename = get_base_filename(logger_name)
-        self.mhs_logger = logging.getLogger(basename)
-        # default for logger: all messages DEBUG or higher
-        self.mhs_logger.setLevel(logging.DEBUG)
 
-        self.con_hdlr  = logging.StreamHandler() # console handler
-        self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_time + osp.extsep + suffix))
+        try:
+            self.mhs_logger = logging.getLogger(basename)
+            # default for logger: all messages DEBUG or higher
+            self.mhs_logger.setLevel(logging.DEBUG)
+            self.con_hdlr  = logging.StreamHandler() # console handler
+            self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_time + osp.extsep + suffix))
+        except Exception as iex:
+            print("Problem getting Logger or Handlers.")
+            raise iex
 
         try:
             self.con_hdlr.setLevel(con_level)
@@ -57,16 +61,23 @@ class MhsLogger:
         except ValueError:
             self.con_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
             self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
+        except Exception as ilx:
+            print("Problem setting Levels.")
+            raise ilx
 
-        # create formatters and add to the handlers
-        con_formatter  = logging.Formatter(CONSOLE_FORMAT)
-        file_formatter = logging.Formatter(FILE_FORMAT)
-        self.con_hdlr.setFormatter(con_formatter)
-        self.file_hdlr.setFormatter(file_formatter)
+        try:
+            # create formatters and add to the handlers
+            con_formatter  = logging.Formatter(CONSOLE_FORMAT)
+            file_formatter = logging.Formatter(FILE_FORMAT)
+            self.con_hdlr.setFormatter(con_formatter)
+            self.file_hdlr.setFormatter(file_formatter)
 
-        # add handlers to the logger
-        self.mhs_logger.addHandler(self.con_hdlr)
-        self.mhs_logger.addHandler(self.file_hdlr)
+            # add handlers to the logger
+            self.mhs_logger.addHandler(self.con_hdlr)
+            self.mhs_logger.addHandler(self.file_hdlr)
+        except Exception as fex:
+            print("Problem setting Formatters or adding Handlers.")
+            raise fex
 
         self.mhs_logger.info(F"FINISHED {self.__class__.__name__} init.")
 
@@ -86,12 +97,13 @@ class MhsLogger:
         for item in items:
             self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
+    def logl(self, msg:str, level = DEFAULT_LOG_LEVEL):
+        self.mhs_logger.log(level, msg)
+
     def show(self, msg:str, level = DEFAULT_LOG_LEVEL, endl = '\n'):
         """print and log."""
         print(msg, end = endl)
-        if self.mhs_logger:
-            self.mhs_logger.log(level, msg)
-
+        self.mhs_logger.log(level, msg)
 # END class MhsLogger
 
 
@@ -145,12 +157,11 @@ class SpecialFilter(logging.Filter):
 def get_special_logger(logger_name:str) -> logging.Logger:
     # load the logging config
     global log_config
-    with open(YAML_CONFIG_FILE, 'r') as fp:
+    with open(YAML_CONFIG_FILE) as fp:
         log_config = yaml.safe_load(fp.read())
     logging.config.dictConfig(log_config)
     print(F"requested logger = {logger_name}")
     return logging.getLogger(logger_name)
-
 
 # noinspection PyUnresolvedReferences
 def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
@@ -161,7 +172,6 @@ def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
         return log_config.get("handlers").get(handler).get("filename")
     print("log_config not available yet?!")
     return ""
-
 
 def finish_special_logging(logger_name:str, custom_log_name:str = None,
                            timestamp:str = dt.now().strftime(FILE_DATETIME_FORMAT), sfx:str = DEFAULT_LOG_SUFFIX):
