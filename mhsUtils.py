@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-08-05"
+__updated__ = "2024-09-01"
 
 import inspect
 import json
@@ -52,6 +52,9 @@ def get_current_date(format_indicator:str = CELL_DATE_STR) -> str:
 
 def get_current_time(format_indicator:str = RUN_DATETIME_FORMAT) -> str:
     return dt.now().strftime(format_indicator)
+
+def get_current_year() -> int:
+    return int( get_current_date("%Y") )
 
 def get_base_fileparts(filename:str) -> (str,str):
     _, fname = osp.split(filename)
