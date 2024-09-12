@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2024-08-16"
+__updated__ = "2024-09-12"
 
 import logging
 import logging.config
@@ -50,20 +50,19 @@ class MhsLogger:
             self.mhs_logger.setLevel(logging.DEBUG)
             self.con_hdlr  = logging.StreamHandler() # console handler
             self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_time + osp.extsep + suffix))
+            self.file_hdlr.addFilter( self.MhsLogFilter() )
         except Exception as iex:
-            print("Problem getting Logger or Handlers.")
+            print(f"Problem during setup: {repr(iex)}")
             raise iex
 
         try:
             self.con_hdlr.setLevel(con_level)
-            self.file_hdlr.addFilter( self.MhsLogFilter() )
             self.file_hdlr.setLevel(file_level)
         except ValueError:
             self.con_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
             self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
         except Exception as ilx:
-            print("Problem setting Levels.")
-            raise ilx
+            print(f"Problem setting Levels: {repr(ilx)}")
 
         try:
             # create formatters and add to the handlers
@@ -76,10 +75,10 @@ class MhsLogger:
             self.mhs_logger.addHandler(self.con_hdlr)
             self.mhs_logger.addHandler(self.file_hdlr)
         except Exception as fex:
-            print("Problem setting Formatters or adding Handlers.")
+            print(f"Problem setting Formatters or adding Handlers: {repr(fex)}")
             raise fex
 
-        self.mhs_logger.info(F"FINISHED {self.__class__.__name__} init.")
+        self.mhs_logger.info(f"FINISHED {self.__class__.__name__} init.")
 
     def get_logger(self):
         return self.mhs_logger
@@ -97,10 +96,25 @@ class MhsLogger:
         for item in items:
             self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
-    def logl(self, msg:str, level = DEFAULT_LOG_LEVEL):
+    def error(self, msg):
+        self.mhs_logger.error(msg)
+
+    def exception(self, msg):
+        self.mhs_logger.exception(msg)
+
+    def warning(self, msg):
+        self.mhs_logger.warning(msg)
+
+    def info(self, msg):
+        self.mhs_logger.info(msg)
+
+    def debug(self, msg):
+        self.mhs_logger.debug(msg)
+
+    def logl(self, msg, level = DEFAULT_LOG_LEVEL):
         self.mhs_logger.log(level, msg)
 
-    def show(self, msg:str, level = DEFAULT_LOG_LEVEL, endl = '\n'):
+    def show(self, msg, level = DEFAULT_LOG_LEVEL, endl = '\n'):
         """print and log."""
         print(msg, end = endl)
         self.mhs_logger.log(level, msg)
@@ -160,15 +174,15 @@ def get_special_logger(logger_name:str) -> logging.Logger:
     with open(YAML_CONFIG_FILE) as fp:
         log_config = yaml.safe_load(fp.read())
     logging.config.dictConfig(log_config)
-    print(F"requested logger = {logger_name}")
+    print(f"requested logger = {logger_name}")
     return logging.getLogger(logger_name)
 
 # noinspection PyUnresolvedReferences
 def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
-    print(F"requested logger name = {logger_name}")
+    print(f"requested logger name = {logger_name}")
     if log_config:
         handler = log_config.get("loggers").get(logger_name).get("handlers")[posn]
-        print(F"handler = {handler}")
+        print(f"handler = {handler}")
         return log_config.get("handlers").get(handler).get("filename")
     print("log_config not available yet?!")
     return ""
@@ -179,7 +193,7 @@ def finish_special_logging(logger_name:str, custom_log_name:str = None,
     run_log_name = get_spec_lgr_filename(logger_name)
     custom_name = custom_log_name if custom_log_name else run_log_name
     final_log_name = custom_name + '_' + timestamp + osp.extsep + sfx
-    print(F"finish logging to {run_log_name}")
+    print(f"finish logging to {run_log_name}")
     logging.shutdown() # need this to ensure get a NEW log file with next call of get_special_logger() from SAME file
     shutil.move(run_log_name, final_log_name)
-    print(F"move {run_log_name} to {final_log_name}")
+    print(f"move {run_log_name} to {final_log_name}")
