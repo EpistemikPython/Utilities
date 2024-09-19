@@ -21,12 +21,12 @@ CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
 FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s < %(lineno)-4s > %(message)s"
 SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s > %(message)s"
 
-DEFAULT_LOG_LEVEL = logging.INFO
-QUIET_LOG_LEVEL   = logging.CRITICAL
-DEFAULT_FILE_LEVEL    = logging.DEBUG
-DEFAULT_CONSOLE_LEVEL = logging.WARNING
-DEFAULT_LOG_SUFFIX = "log"
-DEFAULT_LOG_FOLDER = "logs"
+DEFAULT_LOG_LEVEL:int     = logging.INFO
+QUIET_LOG_LEVEL:int       = logging.CRITICAL
+DEFAULT_FILE_LEVEL:int    = logging.DEBUG
+DEFAULT_CONSOLE_LEVEL:int = logging.WARNING
+DEFAULT_LOG_SUFFIX:str = "log"
+DEFAULT_LOG_FOLDER:str = "logs"
 
 
 class MhsLogger:
@@ -78,7 +78,7 @@ class MhsLogger:
             print(f"Problem setting Formatters or adding Handlers: {repr(fex)}")
             raise fex
 
-        self.mhs_logger.info(f"FINISHED {self.__class__.__name__} init.")
+        self.mhs_logger.log(file_level, f"FINISHED {self.__class__.__name__} init.")
 
     def get_logger(self):
         return self.mhs_logger
