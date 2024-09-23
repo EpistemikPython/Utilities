@@ -11,9 +11,8 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-09-01"
+__updated__ = "2024-09-23"
 
-import inspect
 import json
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
@@ -25,27 +24,27 @@ CELL_DATE_STR:str = "%Y-%m-%d"
 CELL_TIME_STR:str = "%H:%M:%S"
 FILE_DATE_STR:str = "D%Y-%m-%d"
 FILE_TIME_STR:str = "T%H-%M-%S"
-FILE_DATETIME_FORMAT = FILE_DATE_STR + FILE_TIME_STR
-RUN_DATETIME_FORMAT  = CELL_DATE_STR + '_' + FXN_TIME_STR
+FILE_DATETIME_FORMAT:str = FILE_DATE_STR + FILE_TIME_STR
+RUN_DATETIME_FORMAT:str  = CELL_DATE_STR + '_' + FXN_TIME_STR
 
-now_dt = dt.now()
-UTF8_ENCODING = "utf-8"
-JSON_LABEL    = "json"
+UTF8_ENCODING:str = "utf-8"
+JSON_LABEL:str    = "json"
 
 # my file structure
-HOME_FOLDER = osp.sep + "home" + osp.sep + "marksa"
-BASE_DEV_FOLDER = osp.join(HOME_FOLDER, "dev")
-BASE_GIT_FOLDER = osp.join(BASE_DEV_FOLDER, "git")
-BASE_PYTHON_FOLDER = osp.join(BASE_GIT_FOLDER, "Python")
-PYTHON_UTIL_FOLDER = osp.join(BASE_PYTHON_FOLDER, "utils")
+HOME_FOLDER:str        = osp.sep + "home" + osp.sep + "marksa"
+BASE_DEV_FOLDER:str    = osp.join(HOME_FOLDER, "dev")
+BASE_GIT_FOLDER:str    = osp.join(BASE_DEV_FOLDER, "git")
+BASE_PYTHON_FOLDER:str = osp.join(BASE_GIT_FOLDER, "Python")
+PYTHON_UTIL_FOLDER:str = osp.join(BASE_PYTHON_FOLDER, "utils")
 
-MAX_QUARTER = 4  # 1 to 4 = use this quarter of selected year"
-MIN_QUARTER = 0  # Zero = "ALL four quarters"
-QTR_MONTHS  = 3
-YEAR_MONTHS = 12
+MAX_QUARTER:int = 4  # 1 to 4 = use this quarter of selected year"
+MIN_QUARTER:int = 0  # Zero = "ALL four quarters"
+QTR_MONTHS:int  = 3
+YEAR_MONTHS:int = 12
 
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
+now_dt = dt.now()
 
 def get_current_date(format_indicator:str = CELL_DATE_STR) -> str:
     return dt.now().strftime(format_indicator)
@@ -114,16 +113,14 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger = None) -> int
     if not ( target_year.isnumeric() and len(target_year) == 4 ):
         msg = "Input MUST be the String representation of a RECENT year, e.g. '2013'!"
         if logger:
-            c_frame = inspect.currentframe().f_back
-            logger.error(msg, c_frame)
+            logger.error(msg)
         raise Exception(msg)
 
     int_year = int( float(target_year) )
     if int_year > now_dt.year or int_year < base_year:
         msg = F"Input MUST be a Year between {base_year} and {now_dt.year}!"
         if logger:
-            c_frame = inspect.currentframe().f_back
-            logger.error(msg, c_frame)
+            logger.error(msg)
         raise Exception(msg)
 
     return int_year
@@ -141,15 +138,13 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger = None) -> int:
     msg = "Input MUST be a String of 0..4!"
     if not p_qtr.isnumeric() or len(p_qtr) != 1:
         if logger:
-            c_frame = inspect.currentframe().f_back
-            logger.error(msg, c_frame)
+            logger.error(msg)
         raise Exception(msg)
 
     int_qtr = int( float(p_qtr) )
     if int_qtr > MAX_QUARTER or int_qtr < MIN_QUARTER:
         if logger:
-            c_frame = inspect.currentframe().f_back
-            logger.error(msg, c_frame)
+            logger.error(msg)
         raise Exception(msg)
 
     return int_qtr
@@ -182,7 +177,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger = None
     :return  end date
     """
     if logger:
-        logger.info(F"start year = {start_year}; start month = {start_month}")
+        logger.debug(F"start year = {start_year}; start month = {start_month}")
     end_year, end_month = next_quarter_start(start_year, start_month)
     # end date is one day back from the start of the next period
     return date(end_year, end_month, 1) - ONE_DAY
@@ -218,7 +213,7 @@ def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DAT
         save_subdir = folder_name if ( osp.isdir(folder_name) ) else '.'
         outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + JSON_LABEL)
         if logger:
-            logger.info(F"dump to {JSON_LABEL.upper()} file: {outfile_name}")
+            logger.info(F"Write to {JSON_LABEL.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
             json.dump(json_data, jfp, indent=indt)
         return outfile_name
