@@ -83,18 +83,8 @@ class MhsLogger:
     def get_logger(self):
         return self.mhs_logger
 
-    def append(self, msg:str):
-        self.saved_log_info.append( msg + '\n' )
-
     def get_saved_info(self):
         return self.saved_log_info
-
-    def send_saved_info(self):
-        self.log_list(self.saved_log_info)
-
-    def log_list(self, items:list, newl = ''):
-        for item in items:
-            self.mhs_logger.log( self.file_hdlr.level, newl + str(item) )
 
     def error(self, msg):
         self.mhs_logger.error(msg)
@@ -111,8 +101,12 @@ class MhsLogger:
     def debug(self, msg):
         self.mhs_logger.debug(msg)
 
-    def logl(self, msg, level = DEFAULT_LOG_LEVEL):
+    def logl(self, level, msg):
         self.mhs_logger.log(level, msg)
+
+    def log_list(self, items:list, level:int, newl = ''):
+        for item in items:
+            self.mhs_logger.log( level = level, msg = newl + str(item) )
 
     def show(self, msg, level = DEFAULT_LOG_LEVEL, endl = '\n'):
         """print and log."""
