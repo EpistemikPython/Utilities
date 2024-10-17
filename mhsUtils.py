@@ -197,8 +197,8 @@ def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, l
         yield date(start_year, start_month, 1), current_quarter_end(start_year, start_month)
         start_year, start_month = next_quarter_start(start_year, start_month)
 
-def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DATETIME_FORMAT),
-                 indt:int = 4, logger:lg.Logger = None, folder_name:str = JSON_LABEL) -> str:
+def save_to_json(fname:str, json_data:object, ts:str = "", indt:int = 4,
+                 logger:lg.Logger = None, folder_name:str = JSON_LABEL) -> str:
     """
     Print json data to a file -- add a timestamp to get a unique file name each run.
     :param   fname: base file name to use
@@ -211,7 +211,8 @@ def save_to_json(fname:str, json_data:object, ts:str = get_current_time(FILE_DAT
     """
     try:
         save_subdir = folder_name if ( osp.isdir(folder_name) ) else '.'
-        outfile_name = osp.join(save_subdir, fname + '_' + ts + osp.extsep + JSON_LABEL)
+        tmst = ts if ts else get_current_time(FILE_DATETIME_FORMAT)
+        outfile_name = osp.join(save_subdir, fname + '_' + tmst + osp.extsep + JSON_LABEL)
         if logger:
             logger.info(F"Write to {JSON_LABEL.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
