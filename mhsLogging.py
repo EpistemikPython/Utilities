@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2024-09-12"
+__updated__ = "2024-10-22"
 
 import logging
 import logging.config
@@ -26,7 +26,7 @@ QUIET_LOG_LEVEL:int       = logging.CRITICAL
 DEFAULT_FILE_LEVEL:int    = logging.DEBUG
 DEFAULT_CONSOLE_LEVEL:int = logging.WARNING
 DEFAULT_LOG_SUFFIX:str = "log"
-DEFAULT_LOG_FOLDER:str = "logs"
+DEFAULT_LOG_FOLDER:str = DEFAULT_LOG_SUFFIX+'s'
 
 
 class MhsLogger:
@@ -46,9 +46,8 @@ class MhsLogger:
 
         try:
             self.mhs_logger = logging.getLogger(basename)
-            # default for logger: all messages DEBUG or higher
             self.mhs_logger.setLevel(logging.DEBUG)
-            self.con_hdlr  = logging.StreamHandler() # console handler
+            self.console_hdlr = logging.StreamHandler()
             self.file_hdlr = logging.FileHandler(osp.join(folder, basename + '_' + file_time + osp.extsep + suffix))
             self.file_hdlr.addFilter( self.MhsLogFilter() )
         except Exception as iex:
@@ -56,10 +55,10 @@ class MhsLogger:
             raise iex
 
         try:
-            self.con_hdlr.setLevel(con_level)
+            self.console_hdlr.setLevel(con_level)
             self.file_hdlr.setLevel(file_level)
         except ValueError:
-            self.con_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
+            self.console_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
             self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
         except Exception as ilx:
             print(f"Problem setting Levels: {repr(ilx)}")
@@ -68,11 +67,11 @@ class MhsLogger:
             # create formatters and add to the handlers
             con_formatter  = logging.Formatter(CONSOLE_FORMAT)
             file_formatter = logging.Formatter(FILE_FORMAT)
-            self.con_hdlr.setFormatter(con_formatter)
+            self.console_hdlr.setFormatter(con_formatter)
             self.file_hdlr.setFormatter(file_formatter)
 
             # add handlers to the logger
-            self.mhs_logger.addHandler(self.con_hdlr)
+            self.mhs_logger.addHandler(self.console_hdlr)
             self.mhs_logger.addHandler(self.file_hdlr)
         except Exception as fex:
             print(f"Problem setting Formatters or adding Handlers: {repr(fex)}")
