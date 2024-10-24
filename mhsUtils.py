@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-09-23"
+__updated__ = "2024-10-22"
 
 import json
 from decimal import Decimal
@@ -216,7 +216,7 @@ def save_to_json(fname:str, json_data:object, ts:str = "", indt:int = 4,
         if logger:
             logger.info(F"Write to {JSON_LABEL.upper()} file: {outfile_name}")
         with open(outfile_name, 'w') as jfp:
-            json.dump(json_data, jfp, indent=indt)
+            json.dump(obj = json_data, fp = jfp, indent = indt)
         return outfile_name
     except Exception as sjex:
         if logger:
