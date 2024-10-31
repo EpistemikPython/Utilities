@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2024-10-22"
+__updated__ = "2024-10-30"
 
 import logging
 import logging.config
@@ -17,9 +17,16 @@ import yaml
 import shutil
 from mhsUtils import osp, PYTHON_UTIL_FOLDER, get_base_filename, dt, FILE_DATETIME_FORMAT
 
-CONSOLE_FORMAT = "%(levelname)-8s | %(filename)s[%(lineno)s]: %(message)s"
+CONSOLE_FORMAT = "%(levelname)-8s | %(funcName)s[%(lineno)s]: %(message)s"
 FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s < %(lineno)-4s > %(message)s"
-SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s > %(message)s"
+SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s # %(message)s"
+
+# CRITICAL = 50
+# ERROR    = 40
+# WARNING  = 30
+# INFO     = 20
+# DEBUG    = 10
+# NOTSET   = 0
 
 DEFAULT_LOG_LEVEL:int     = logging.INFO
 QUIET_LOG_LEVEL:int       = logging.CRITICAL
@@ -28,6 +35,9 @@ DEFAULT_CONSOLE_LEVEL:int = logging.WARNING
 DEFAULT_LOG_SUFFIX:str = "log"
 DEFAULT_LOG_FOLDER:str = DEFAULT_LOG_SUFFIX+'s'
 
+def get_level(levname:str):
+    loglev = logging.getLevelName( levname.upper() )
+    return loglev if isinstance(loglev, int) else None
 
 class MhsLogger:
     saved_log_info = []
@@ -117,32 +127,28 @@ class MhsLogger:
 #
 #  Simple logger
 ########################################
-def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL,
+def get_simple_logger(logger_name:str, level = DEFAULT_LOG_LEVEL, file_handling = True,
                       file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT)) -> logging.Logger:
     basename = get_base_filename(logger_name)
     lgr = logging.getLogger(basename)
     # default for logger: all messages DEBUG or higher
     lgr.setLevel(logging.DEBUG)
 
-    fh = logging.FileHandler( osp.join(DEFAULT_LOG_FOLDER, basename + '_' + file_time + osp.extsep + DEFAULT_LOG_SUFFIX) )
-    # default for file handler: all messages DEBUG or higher
-    fh.setLevel(DEFAULT_FILE_LEVEL)
-
     ch = logging.StreamHandler() # console handler
-    # log to console at the level requested on the command line
     try:
-        ch.setLevel(level)
+        ch.setLevel(level) # try to log to console at the level requested on the command line
     except ValueError:
         ch.setLevel(DEFAULT_LOG_LEVEL)
-
-    # create formatter and add it to the handlers
     formatter = logging.Formatter(SIMPLE_FORMAT)
     ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
-
-    # add handlers to the logger
     lgr.addHandler(ch)
-    lgr.addHandler(fh)
+
+    if file_handling:
+        fh = logging.FileHandler( osp.join(DEFAULT_LOG_FOLDER, basename + '_' + file_time + osp.extsep + DEFAULT_LOG_SUFFIX) )
+        fh.setLevel(DEFAULT_FILE_LEVEL)
+        fh.setFormatter(formatter)
+        lgr.addHandler(fh)
+
     return lgr
 
 
