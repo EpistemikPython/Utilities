@@ -4,6 +4,7 @@
 **/out/
 **/logs/
 **/venv/
+**/json/
 **/Downloads
 **/test*/
 **/bin/
