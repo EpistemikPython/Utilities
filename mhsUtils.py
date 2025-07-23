@@ -5,13 +5,13 @@
 #
 # some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
 #
-# Copyright (c) 2024 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2025 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2024-10-22"
+__updated__ = "2025-07-01"
 
 import json
 from decimal import Decimal
@@ -110,15 +110,14 @@ def get_int_year(target_year:str, base_year:int, logger:lg.Logger = None) -> int
     if logger:
         logger.debug(F"year = {target_year}; base year = {base_year}")
 
-    if not ( target_year.isnumeric() and len(target_year) == 4 ):
-        msg = "Input MUST be the String representation of a RECENT year, e.g. '2013'!"
+    msg = f"Input MUST be a Year between {base_year} and {now_dt.year}!"
+    if not target_year.isnumeric() or len(target_year) != 4:
         if logger:
             logger.error(msg)
         raise Exception(msg)
 
     int_year = int( float(target_year) )
     if int_year > now_dt.year or int_year < base_year:
-        msg = F"Input MUST be a Year between {base_year} and {now_dt.year}!"
         if logger:
             logger.error(msg)
         raise Exception(msg)
