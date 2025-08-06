@@ -3,13 +3,13 @@
 #
 # mhsLogging.py -- custom logging
 #
-# Copyright (c) 2024 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2025 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2024-10-30"
+__updated__ = "2025-08-05"
 
 import logging
 import logging.config
@@ -49,7 +49,7 @@ class MhsLogger:
             MhsLogger.saved_log_info.append( str(record.msg) + '\n' )
             return True
 
-    def __init__(self, logger_name:str, con_level:logging = DEFAULT_CONSOLE_LEVEL, file_level:logging = DEFAULT_FILE_LEVEL,
+    def __init__(self, logger_name:str, con_level:int = DEFAULT_CONSOLE_LEVEL, file_level:int = DEFAULT_FILE_LEVEL,
                  folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT),
                  suffix:str = DEFAULT_LOG_SUFFIX):
         basename = get_base_filename(logger_name)
@@ -176,7 +176,6 @@ def get_special_logger(logger_name:str) -> logging.Logger:
     print(f"requested logger = {logger_name}")
     return logging.getLogger(logger_name)
 
-# noinspection PyUnresolvedReferences
 def get_spec_lgr_filename(logger_name:str, posn:int = 1) -> str:
     print(f"requested logger name = {logger_name}")
     if log_config:
