@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2025-08-05"
+__updated__ = "2025-08-06"
 
 import logging
 import logging.config
@@ -33,7 +33,7 @@ QUIET_LOG_LEVEL:int       = logging.CRITICAL
 DEFAULT_FILE_LEVEL:int    = logging.DEBUG
 DEFAULT_CONSOLE_LEVEL:int = logging.WARNING
 DEFAULT_LOG_SUFFIX:str = "log"
-DEFAULT_LOG_FOLDER:str = DEFAULT_LOG_SUFFIX+'s'
+DEFAULT_LOG_FOLDER:str = DEFAULT_LOG_SUFFIX + 's'
 
 def get_level(levname:str):
     loglev = logging.getLevelName( levname.upper() )
@@ -67,11 +67,13 @@ class MhsLogger:
         try:
             self.console_hdlr.setLevel(con_level)
             self.file_hdlr.setLevel(file_level)
-        except ValueError:
+        except ValueError as lve:
+            print(f"Problem setting requested Levels: {repr(lve)}")
             self.console_hdlr.setLevel(DEFAULT_CONSOLE_LEVEL)
             self.file_hdlr.setLevel(DEFAULT_FILE_LEVEL)
         except Exception as ilx:
-            print(f"Problem setting Levels: {repr(ilx)}")
+            print(f"Problem setting default Levels: {repr(ilx)}")
+            raise ilx
 
         try:
             # create formatters and add to the handlers
