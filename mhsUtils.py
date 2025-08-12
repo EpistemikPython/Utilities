@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2025-07-01"
+__updated__ = "2025-08-11"
 
 import json
 from decimal import Decimal
@@ -55,7 +55,7 @@ def get_current_time(format_indicator:str = RUN_DATETIME_FORMAT) -> str:
 def get_current_year() -> int:
     return int( get_current_date("%Y") )
 
-def get_base_fileparts(filename:str) -> (str,str):
+def get_base_fileparts(filename:str) -> tuple[str,str]:
     _, fname = osp.split(filename)
     return osp.splitext(fname)
 
@@ -148,7 +148,7 @@ def get_int_quarter(p_qtr:str, logger:lg.Logger = None) -> int:
 
     return int_qtr
 
-def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger = None) -> (int, int):
+def next_quarter_start(start_year:int, start_month:int, logger:lg.Logger = None) -> tuple[int, int]:
     """
     Get the year and month that start the FOLLOWING quarter.
     :param   start_year
@@ -181,7 +181,7 @@ def current_quarter_end(start_year:int, start_month:int, logger:lg.Logger = None
     # end date is one day back from the start of the next period
     return date(end_year, end_month, 1) - ONE_DAY
 
-def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger = None) -> (date, date):
+def generate_quarter_boundaries(start_year:int, start_month:int, num_qtrs:int, logger:lg.Logger = None):
     """
     Generate the start and end dates for the quarters in the submitted range.
     :param   start_year
