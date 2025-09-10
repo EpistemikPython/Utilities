@@ -9,7 +9,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2021-05-03"
-__updated__ = "2025-08-06"
+__updated__ = "2025-09-09"
 
 import logging
 import logging.config
@@ -18,7 +18,7 @@ import shutil
 from mhsUtils import osp, PYTHON_UTIL_FOLDER, get_base_filename, dt, FILE_DATETIME_FORMAT
 
 CONSOLE_FORMAT = "%(levelname)-8s | %(funcName)s[%(lineno)s]: %(message)s"
-FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-24s < %(lineno)-4s > %(message)s"
+FILE_FORMAT    = "%(levelname)-8s | %(filename)-24s : %(funcName)-16s <l.%(lineno)-4s> %(message)s"
 SIMPLE_FORMAT  = "%(levelname)-8s @ %(asctime)s | %(funcName)s # %(message)s"
 
 # CRITICAL = 50
@@ -51,7 +51,7 @@ class MhsLogger:
 
     def __init__(self, logger_name:str, con_level:int = DEFAULT_CONSOLE_LEVEL, file_level:int = DEFAULT_FILE_LEVEL,
                  folder:str = DEFAULT_LOG_FOLDER, file_time:str = dt.now().strftime(FILE_DATETIME_FORMAT),
-                 suffix:str = DEFAULT_LOG_SUFFIX):
+                 suffix:str = DEFAULT_LOG_SUFFIX, con_format:str = CONSOLE_FORMAT, file_format:str = FILE_FORMAT):
         basename = get_base_filename(logger_name)
 
         try:
@@ -77,8 +77,8 @@ class MhsLogger:
 
         try:
             # create formatters and add to the handlers
-            con_formatter  = logging.Formatter(CONSOLE_FORMAT)
-            file_formatter = logging.Formatter(FILE_FORMAT)
+            con_formatter  = logging.Formatter(con_format)
+            file_formatter = logging.Formatter(file_format)
             self.console_hdlr.setFormatter(con_formatter)
             self.file_hdlr.setFormatter(file_formatter)
 
