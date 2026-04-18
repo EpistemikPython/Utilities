@@ -5,14 +5,15 @@
 #
 # some code from gnucash examples by Mark Jenkins, ParIT Worker Co-operative <mark@parit.ca>
 #
-# Copyright (c) 2025 Mark Sattolo <epistemik@gmail.com>
+# Copyright (c) 2026 Mark Sattolo <epistemik@gmail.com>
 
 __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2025-08-11"
+__updated__ = "2026-04-18"
 
+import string
 import json
 from decimal import Decimal
 from datetime import date, timedelta, datetime as dt
@@ -45,6 +46,7 @@ YEAR_MONTHS:int = 12
 ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
 now_dt = dt.now()
+cleaner = str.maketrans('', '', string.punctuation)
 
 def get_current_date(format_indicator:str = CELL_DATE_STR) -> str:
     return dt.now().strftime(format_indicator)
@@ -82,6 +84,14 @@ def get_custom_base_filename(p_name:str, file_div:str = osp.sep, sfx_div:str = o
         if spl2 and isinstance(spl2, list):
             return spl2[0]
     return ""
+
+def get_clean_word(word:str, uc:bool=True, lc:bool=False) -> str:
+    """Remove non-letters, punctuation, extra space left and right, and capitalize."""
+    clean_word = word.translate(cleaner).rstrip().lstrip()
+    for ch in clean_word:
+        if not ch.isalpha():
+            return ""
+    return clean_word.upper() if uc else clean_word.lower() if lc else clean_word
 
 def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger = None) -> int:
     """
