@@ -11,7 +11,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2026-04-18"
+__updated__ = "2026-04-19"
 
 import string
 import json
@@ -86,7 +86,7 @@ def get_custom_base_filename(p_name:str, file_div:str = osp.sep, sfx_div:str = o
     return ""
 
 def get_clean_word(word:str, uc:bool=True, lc:bool=False) -> str:
-    """Remove non-letters, punctuation, extra space left and right, and capitalize."""
+    """Remove non-letters, punctuation, extra space left and right, and change case if specified."""
     clean_word = word.translate(cleaner).rstrip().lstrip()
     for ch in clean_word:
         if not ch.isalpha():
