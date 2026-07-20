@@ -11,8 +11,9 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2019-04-07"
-__updated__ = "2026-04-19"
+__updated__ = "2026-07-19"
 
+import subprocess
 import string
 import json
 from decimal import Decimal
@@ -47,6 +48,28 @@ ZERO:Decimal = Decimal(0)
 ONE_DAY:timedelta = timedelta(days=1)
 now_dt = dt.now()
 cleaner = str.maketrans('', '', string.punctuation)
+
+def check_screen_locked(p_lgr:lg.Logger=None, p_debug:bool=False) -> bool:
+    """See if a screensaver is active."""
+    try:
+        output = subprocess.check_output(["mate-screensaver-command", "-q"]).decode()
+        if output:
+            if p_lgr and p_debug:
+                p_lgr.debug(f"Mate screensaver output: {output}")
+            return "is active" in output
+    except FileNotFoundError:
+        if p_lgr:
+            p_lgr.warning("Mate screensaver NOT found!")
+    try:
+        output = subprocess.check_output(["gnome-screensaver-command", "-q"]).decode()
+        if output:
+            if p_lgr and p_debug:
+                p_lgr.debug(f"Gnome screensaver output: {output}")
+            return "is active" in output
+    except FileNotFoundError:
+        if p_lgr:
+            p_lgr.warning("Gnome screensaver NOT found!")
+    return False
 
 def get_current_date(format_indicator:str = CELL_DATE_STR) -> str:
     return dt.now().strftime(format_indicator)
@@ -85,13 +108,18 @@ def get_custom_base_filename(p_name:str, file_div:str = osp.sep, sfx_div:str = o
             return spl2[0]
     return ""
 
-def get_clean_word(word:str, uc:bool=True, lc:bool=False) -> str:
+def get_clean_word(p_word:str, uc:bool=True, lc:bool=False) -> str:
     """Remove non-letters, punctuation, extra space left and right, and change case if specified."""
-    clean_word = word.translate(cleaner).rstrip().lstrip()
+    clean_word = p_word.translate(cleaner).rstrip().lstrip()
     for ch in clean_word:
         if not ch.isalpha():
             return ""
     return clean_word.upper() if uc else clean_word.lower() if lc else clean_word
+
+def check_plural(p_word:str, p_coll:list) -> bool:
+    if (p_word[-1] == 'S' and p_word[-2] != 'S' and p_word[:-1] in p_coll) or (p_word[-2:] == "ES" and p_word[:-2] in p_coll):
+        return True
+    return False
 
 def year_span(target_year:int, base_year:int, yr_span:int, hdr_span:int, logger:lg.Logger = None) -> int:
     """
