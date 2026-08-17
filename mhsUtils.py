@@ -49,12 +49,12 @@ ONE_DAY:timedelta = timedelta(days=1)
 now_dt = dt.now()
 cleaner = str.maketrans('', '', string.punctuation)
 
-def check_screen_locked(p_lgr:lg.Logger=None, p_debug:bool=False) -> bool:
+def check_screen_locked(p_lgr:lg.Logger=None, p_debug:int=0) -> bool:
     """See if a screensaver is active."""
     try:
         output = subprocess.check_output(["mate-screensaver-command", "-q"]).decode()
         if output:
-            if p_lgr and p_debug:
+            if p_lgr and p_debug > 1:
                 p_lgr.debug(f"Mate screensaver output: {output}")
             return "is active" in output
     except FileNotFoundError:
@@ -63,7 +63,7 @@ def check_screen_locked(p_lgr:lg.Logger=None, p_debug:bool=False) -> bool:
     try:
         output = subprocess.check_output(["gnome-screensaver-command", "-q"]).decode()
         if output:
-            if p_lgr and p_debug:
+            if p_lgr and p_debug > 1:
                 p_lgr.debug(f"Gnome screensaver output: {output}")
             return "is active" in output
     except FileNotFoundError:
