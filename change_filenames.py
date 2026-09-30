@@ -14,7 +14,7 @@ __author__         = "Mark Sattolo"
 __author_email__   = "epistemik@gmail.com"
 __python_version__ = "3.6+"
 __created__ = "2026-09-18"
-__updated__ = "2026-09-23"
+__updated__ = "2026-09-30"
 
 import os
 import time
@@ -40,7 +40,7 @@ def run():
                 # DO NOT go into subdirs
                 dirnames.remove(subdir)
         for oldname in filenames:
-            lgr.info(f"current file = '{oldname}'")
+            lgr.debug(f"current file = '{oldname}'")
             if old_term in oldname:
                 # OLD_TERM will be replaced by NEW_TERM in the filenames in the target folder
                 newname = oldname.replace(old_term, new_term)
@@ -64,19 +64,21 @@ def set_args():
     arg_parser.add_argument('-o', '--oldterm', type = str, default = DEFAULT_OLD_TERM,
                             help = f"string TO BE REPLACED in the target filenames; DEFAULT = '{DEFAULT_OLD_TERM}'")
     arg_parser.add_argument('-n', '--newterm', type = str, default = DEFAULT_NEW_TERM,
-                            help = f"NEW STRING to put in the target filenames; DEFAULT = '{DEFAULT_NEW_TERM}'")
+                            help = f"NEW STRING (can be empty) to put in the target filenames; DEFAULT = '{DEFAULT_NEW_TERM}'")
     return arg_parser
 
 def get_args(argl:list):
     args = set_args().parse_args(argl)
     targfolder = args.folder if osp.isdir(args.folder) else DEFAULT_FOLDER
     lgr.info(f"target folder = '{targfolder}'")
+    # need at least one character to search and replace
     oldt = args.oldterm if TERM_MIN_LENGTH <= len(args.oldterm) <= TERM_MAX_LENGTH else DEFAULT_OLD_TERM
     lgr.info(f"old string = '{oldt}'")
+    # can just eliminate existing strings by using '' as the replacement term
     newt = args.newterm if len(args.newterm) <= TERM_MAX_LENGTH else DEFAULT_NEW_TERM
     lgr.info(f"new string = '{newt}'")
     if newt == oldt:
-        lgr.info(f"New term '{newt}' is THE SAME as old term '{oldt}' !!??")
+        lgr.info(f">> New term '{newt}' is THE SAME as old term '{oldt}' !!??")
     return args.test, targfolder, oldt, newt
 
 
