@@ -35,7 +35,7 @@ def run():
     ct = 0
     for root, dirnames, filenames in os.walk(target_folder):
         lgr.info(f"root: {root}; dirnames: {dirnames}")
-        if dirnames:
+        if dirnames and not sub_folders:
             for subdir in dirnames:
                 # DO NOT go into subdirs
                 dirnames.remove(subdir)
@@ -61,6 +61,8 @@ def set_args():
                             help = "display the old and new filenames WITHOUT performing the change")
     arg_parser.add_argument('-f', '--folder', type = str, default = DEFAULT_FOLDER,
                             help = f"path to the folder to search for filenames to change; DEFAULT = '{DEFAULT_FOLDER}'")
+    arg_parser.add_argument('-s', '--subs', action = "store_true", default = False,
+                            help = "change strings in subfolders as well")
     arg_parser.add_argument('-o', '--oldterm', type = str, default = DEFAULT_OLD_TERM,
                             help = f"string TO BE REPLACED in the target filenames; DEFAULT = '{DEFAULT_OLD_TERM}'")
     arg_parser.add_argument('-n', '--newterm', type = str, default = DEFAULT_NEW_TERM,
@@ -79,7 +81,7 @@ def get_args(argl:list):
     lgr.info(f"new string = '{newt}'")
     if newt == oldt:
         lgr.info(f">> New term '{newt}' is THE SAME as old term '{oldt}' !!??")
-    return args.test, targfolder, oldt, newt
+    return args.test, args.subs, targfolder, oldt, newt
 
 
 log_control = MhsLogger( get_base_filename(__file__), con_level = DEFAULT_LOG_LEVEL )
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     lgr = log_control.get_logger()
     code = 0
     try:
-        test_run, target_folder, old_term, new_term = get_args(argv[1:])
+        test_run, sub_folders, target_folder, old_term, new_term = get_args(argv[1:])
         run()
     except KeyboardInterrupt as mki:
         lgr.exception(mki)
