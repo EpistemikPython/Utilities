@@ -1,7 +1,7 @@
 .*
 !.gitignore
-**/in/
-**/out/
+**/in*/
+**/out*/
 **/logs/
 **/venv/
 **/json/
@@ -17,5 +17,7 @@
 *.exe
 *.x
 *.json
+input
+output
 # find <dir/>* -type l >> .gitignore
 
